@@ -3,12 +3,11 @@
 /* eslint-disable react/prop-types */
 import { forwardRef } from "react";
 
-// @emotion/css
-import { css } from "@emotion/css";
+// @mui components
+import { Box } from "@mui/material";
 
 // prop-types
 import PropTypes from "prop-types";
-import { Box } from "@mui/material";
 
 const Container = forwardRef((props, ref) => {
   const {
