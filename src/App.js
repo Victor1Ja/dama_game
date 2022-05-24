@@ -260,6 +260,12 @@ function App() {
     const ntX = Number(tX);
     killPiece("bad", ntY, ntX);
     movePiece("good", ncY, ncX, { ...selectedPiece });
+    // clean board
+    const newField = field;
+    for (let i = 0; i < field.cells.length; i += 1)
+      for (let j = 0; j < field.cells[0].length; j += 1)
+        newField.cells[i][j] = i;
+    setField({ type: "set", array: newField });
   };
 
   const possibleStepClick = (e) => {
