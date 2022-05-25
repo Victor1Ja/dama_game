@@ -90,33 +90,33 @@ function App() {
   };
 
   const [goodPieces, setGoodPieces] = useReducer(piecesReducer, [
-    { y: 5, x: 6 },
-    { y: 6, x: 7 },
-    { y: 7, x: 6 },
-    { y: 5, x: 4 },
-    { y: 6, x: 5 },
-    { y: 7, x: 4 },
-    { y: 5, x: 2 },
-    { y: 6, x: 3 },
-    { y: 7, x: 2 },
-    { y: 5, x: 0 },
-    { y: 6, x: 1 },
-    { y: 7, x: 0 },
+    { y: 5, x: 6, queen: false },
+    { y: 6, x: 7, queen: false },
+    { y: 7, x: 6, queen: false },
+    { y: 5, x: 4, queen: false },
+    { y: 6, x: 5, queen: false },
+    { y: 7, x: 4, queen: false },
+    { y: 5, x: 2, queen: false },
+    { y: 6, x: 3, queen: false },
+    { y: 7, x: 2, queen: false },
+    { y: 5, x: 0, queen: false },
+    { y: 6, x: 1, queen: false },
+    { y: 7, x: 0, queen: false },
   ]);
 
   const [badPieces, setBadPieces] = useReducer(piecesReducer, [
-    { y: 1, x: 0 },
-    { y: 0, x: 1 },
-    { y: 2, x: 1 },
-    { y: 1, x: 2 },
-    { y: 0, x: 3 },
-    { y: 2, x: 3 },
-    { y: 1, x: 4 },
-    { y: 0, x: 5 },
-    { y: 2, x: 5 },
-    { y: 1, x: 6 },
-    { y: 2, x: 7 },
-    { y: 4, x: 5 },
+    { y: 1, x: 0, queen: false },
+    { y: 0, x: 1, queen: false },
+    { y: 2, x: 1, queen: false },
+    { y: 1, x: 2, queen: false },
+    { y: 0, x: 3, queen: false },
+    { y: 2, x: 3, queen: false },
+    { y: 1, x: 4, queen: false },
+    { y: 0, x: 5, queen: false },
+    { y: 2, x: 5, queen: false },
+    { y: 1, x: 6, queen: false },
+    { y: 2, x: 7, queen: false },
+    { y: 0, x: 7, queen: false },
   ]);
 
   const thereIsABadPiece = (y, x) => {
@@ -147,6 +147,7 @@ function App() {
     for (let i = 0; i < field.cells.length; i += 1)
       for (let j = 0; j < field.cells[0].length; j += 1)
         newField.cells[i][j] = i;
+
     // looking for possibles steps
     // top - left
     if (nY > 0 && nX > 0) {
@@ -255,7 +256,7 @@ function App() {
     // y,x of cell as number
     const ncY = Number(cY);
     const ncX = Number(cX);
-    // y,x of target as number
+    // y,x of target as number  
     const ntY = Number(tY);
     const ntX = Number(tX);
     killPiece("bad", ntY, ntX);
@@ -289,6 +290,8 @@ function App() {
     });
     setField({ type: "init", array: newField });
   }, []);
+
+  // components
 
   const GoodPiece = (props) => {
     const { id } = props;
