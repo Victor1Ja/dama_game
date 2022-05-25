@@ -9,6 +9,7 @@ import {
   CssBaseline,
   IconButton,
   Box,
+  TextField,
 } from "@mui/material";
 
 // @mui icons
@@ -256,7 +257,7 @@ function App() {
     // y,x of cell as number
     const ncY = Number(cY);
     const ncX = Number(cX);
-    // y,x of target as number  
+    // y,x of target as number
     const ntY = Number(tY);
     const ntX = Number(tX);
     killPiece("bad", ntY, ntX);
@@ -311,10 +312,27 @@ function App() {
     );
   };
 
+  const [maxDeep, setMaxDeep] = useState(10);
+
   return (
     <ThemeProvider theme={dark}>
       <CssBaseline />
-      <div className="App">
+      <Box className="App">
+        <Container sx={{ position: "absolute", left: 0, margin: "20px 10px" }}>
+          <TextField
+            label="Máxima profundida"
+            value={maxDeep}
+            onChange={(e) => {
+              if (Number(e.target.value) >= 2 && Number(e.target.value) <= 20)
+                if (Number(e.target.value) > maxDeep)
+                  setMaxDeep(Number(e.target.value) + 1);
+                else setMaxDeep(Number(e.target.value) - 1);
+            }}
+            type="number"
+            max={10}
+            min={1}
+          />
+        </Container>
         <header className="App-header">
           {rows.map((item, i) => {
             return (
@@ -374,7 +392,7 @@ function App() {
             );
           })}
         </header>
-      </div>
+      </Box>
     </ThemeProvider>
   );
 }

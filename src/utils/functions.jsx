@@ -17,4 +17,4 @@ const thereIsAPiece = (y, x, where) => {
  * @param {array[]} badGuys
  * @param {number} level player
  */
-const MinMax = (goodGuys, badGuys, level) => {};
+const MinMax = (goodGuys, badGuys, level, maxDeep = 10) => {};
