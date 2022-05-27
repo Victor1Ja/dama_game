@@ -29,6 +29,7 @@ function App() {
   const rows = [0, 1, 2, 3, 4, 5, 6, 7];
 
   const [selectedPiece, setSelectedPiece] = useState({});
+  const [botPlaying, setBotPlaying] = useState(false);
 
   const fieldReducer = (fieldState, action) => {
     const { type, array } = action;
@@ -154,7 +155,12 @@ function App() {
     if (nY > 0 && nX > 0) {
       if (!thereIsNotAPiece(nY - 1, nX - 1))
         newField.cells[nY - 1][nX - 1] = "1";
-      else if (nY - 1 > 0 && nX - 1 > 0 && !thereIsNotAPiece(nY - 2, nX - 2))
+      else if (
+        nY - 1 > 0 &&
+        nX - 1 > 0 &&
+        !thereIsNotAPiece(nY - 2, nX - 2) &&
+        thereIsABadPiece(nY - 1, nX - 1)
+      )
         newField.cells[nY - 2][nX - 2] = { target: `${nY}:${nX}` };
     }
 
@@ -165,7 +171,8 @@ function App() {
       else if (
         nY - 1 > 0 &&
         nX + 1 < newField.cells[0].length - 1 &&
-        !thereIsNotAPiece(nY - 2, nX + 2)
+        !thereIsNotAPiece(nY - 2, nX + 2) &&
+        thereIsABadPiece(nY - 1, nX - 1)
       )
         newField.cells[nY - 2][nX + 2] = { target: `${nY}:${nX}` };
     }
@@ -251,17 +258,7 @@ function App() {
     else setBadPieces({ type: "kill", position: { y, x } });
   };
 
-  const possibleKillClick = (cell, target) => {
-    const [cY, cX] = cell.split(":");
-    const [tY, tX] = target.split(":");
-    // y,x of cell as number
-    const ncY = Number(cY);
-    const ncX = Number(cX);
-    // y,x of target as number
-    const ntY = Number(tY);
-    const ntX = Number(tX);
-    killPiece("bad", ntY, ntX);
-    movePiece("good", ncY, ncX, { ...selectedPiece });
+  const cleanField = () => {
     // clean board
     const newField = field;
     for (let i = 0; i < field.cells.length; i += 1)
@@ -270,18 +267,33 @@ function App() {
     setField({ type: "set", array: newField });
   };
 
+  const possibleKillClick = (cell, target) => {
+    if (!botPlaying) {
+      const [cY, cX] = cell.split(":");
+      const [tY, tX] = target.split(":");
+      // y,x of cell as number
+      const ncY = Number(cY);
+      const ncX = Number(cX);
+      // y,x of target as number
+      const ntY = Number(tY);
+      const ntX = Number(tX);
+      killPiece("bad", ntY, ntX);
+      movePiece("good", ncY, ncX, { ...selectedPiece });
+      setBotPlaying(true);
+    }
+    cleanField();
+  };
+
   const possibleStepClick = (e) => {
-    const { id } = e.target;
-    const [y, x] = id.split(":");
-    const nY = Number(y);
-    const nX = Number(x);
-    movePiece("good", nY, nX, { ...selectedPiece });
-    // clean board
-    const newField = field;
-    for (let i = 0; i < field.cells.length; i += 1)
-      for (let j = 0; j < field.cells[0].length; j += 1)
-        newField.cells[i][j] = i;
-    setField({ type: "set", array: newField });
+    if (!botPlaying) {
+      const { id } = e.target;
+      const [y, x] = id.split(":");
+      const nY = Number(y);
+      const nX = Number(x);
+      movePiece("good", nY, nX, { ...selectedPiece });
+      setBotPlaying(true);
+    }
+    cleanField();
   };
 
   useEffect(() => {
