@@ -196,7 +196,7 @@ const createEdges = (currentNode, level, maxDeep, player) => {
  * @param {*} beta  not used
  * @returns {Array} Return a Array with the next node and the next move [NextNode,[i,j,newI,newJ]]
  */
-const MinMax = (
+export const MinMax = (
   currentNode,
   level,
   maxDeep = 4,
@@ -255,7 +255,7 @@ const MinMax = (
  * @param {Boolean} player 0 White pieces , 1 Black pieces
  * @returns {Array} Returns an Array with the next move
  */
-const MiniMaxMove = (i, j, moveI, moveJ, maxDeep = 4, player = 0) => {
+export const MiniMaxMove = (i, j, moveI, moveJ, maxDeep = 4, player = 0) => {
   let band = false,
     move;
   for (let newEdge of Nodes[LastNode].edges) {
@@ -274,9 +274,9 @@ const MiniMaxMove = (i, j, moveI, moveJ, maxDeep = 4, player = 0) => {
 
 /**
  * @description Initialize Minimax
- * @param {} initialBoard
+ * @param {Number[][]} initialBoard
  */
-const InitMinMax = (
+export const InitMinMax = (
   initialBoard = [
     [-1, 0, -1, 0, -1, 0, -1, 0],
     [0, -1, 0, -1, 0, -1, 0, -1],
@@ -298,3 +298,14 @@ const InitMinMax = (
   Nodes.push(startNode);
   N++;
 };
+
+/*InitMinMax();
+//primera jugada
+console.log(MinMax(0, 0, 2, 1));
+//N siguientes jugadas
+console.log("play 1", MiniMaxMove(5, 1, 4, 0, 2, 1));
+console.log("play 2", MiniMaxMove(5, 3, 4, 2, 2, 1));
+console.log("play 3", MiniMaxMove(4, 2, 3, 3, 2, 1));
+console.log("play 4", MiniMaxMove(6, 2, 5, 1, 2, 1));
+console.log("play 5", MiniMaxMove(5, 1, 3, 3, 2, 1));
+console.log("play 6", MiniMaxMove(7, 3, 6, 2, 2, 1));*/
