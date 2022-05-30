@@ -10,22 +10,19 @@ import {
   ThemeProvider,
   useTheme,
   CssBaseline,
-  IconButton,
   Box,
   TextField,
   Button,
   Checkbox,
 } from "@mui/material";
 
-// @mui icons
-import TokenIcon from "@mui/icons-material/Token";
-import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
-import SecurityIcon from "@mui/icons-material/Security";
-import AdbIcon from "@mui/icons-material/Adb";
-
 // own components
 import Cell from "./components/Cell/Cell";
 import Container from "./components/Container/Container";
+import BadPiece from "./components/Piece/BadPiece";
+import BadQueen from "./components/Piece/BadQueen";
+import GoodPiece from "./components/Piece/GoodPiece";
+import GoodQueen from "./components/Piece/GoodQueen";
 
 // theme
 import dark from "./assets/theme/dark";
@@ -110,6 +107,19 @@ function App() {
 
   const [selectedPiece, setSelectedPiece] = useState({});
 
+  const piecesReducer = (pieceState, action) => {};
+
+  const [pieces, setPieces] = useReducer(piecesReducer, [
+    [-1, 0, -1, 0, -1, 0, -1, 0],
+    [0, -1, 0, -1, 0, -1, 0, -1],
+    [-1, 0, -1, 0, -1, 0, -1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1],
+  ]);
+
   const fieldReducer = (fieldState, action) => {
     const { type, array } = action;
     switch (type) {
@@ -130,7 +140,7 @@ function App() {
 
   const [field, setField] = useReducer(fieldReducer, {});
 
-  const piecesReducer = (teamPieces, action) => {
+  /* const piecesReducer = (teamPieces, action) => {
     const { type } = action;
     switch (type) {
       case "promotion": {
@@ -188,65 +198,22 @@ function App() {
       default:
         break;
     }
-  };
-
-  const [goodPieces, setGoodPieces] = useReducer(piecesReducer, [
-    { y: 5, x: 7, queen: false },
-    { y: 6, x: 6, queen: false },
-    { y: 7, x: 7, queen: false },
-    { y: 5, x: 5, queen: false },
-    { y: 6, x: 4, queen: false },
-    { y: 7, x: 5, queen: false },
-    { y: 5, x: 3, queen: false },
-    { y: 6, x: 2, queen: false },
-    { y: 7, x: 3, queen: false },
-    { y: 5, x: 1, queen: false },
-    { y: 6, x: 0, queen: false },
-    { y: 7, x: 1, queen: false },
-  ]);
-
-  const [badPieces, setBadPieces] = useReducer(piecesReducer, [
-    { y: 0, x: 0, queen: false },
-    { y: 2, x: 0, queen: false },
-    { y: 1, x: 1, queen: false },
-    { y: 0, x: 2, queen: false },
-    { y: 2, x: 2, queen: false },
-    { y: 1, x: 3, queen: false },
-    { y: 0, x: 4, queen: false },
-    { y: 2, x: 4, queen: false },
-    { y: 1, x: 5, queen: false },
-    { y: 0, x: 6, queen: false },
-    { y: 2, x: 6, queen: false },
-    { y: 1, x: 7, queen: false },
-  ]);
-
-  const isQueenThePiece = (y, x, team) => {
-    badPieces.forEach((item) => {
-      if (item.y === y && item.x === x) return item.queen;
-      return false;
-    });
-    /* if (team === "good")
-      goodPieces.forEach((item) => {
-        if (item.y === y && item.x === x) return item.queen;
-      });
-    else
-      badPieces.forEach((item) => {
-        if (item.y === y && item.x === x) return item.queen;
-        return false;
-      });
-    */
-  };
+  }; */
 
   const thereIsABadPiece = (y, x) => {
-    for (const piece of badPieces)
-      if (piece.y === y && piece.x === x) return true;
-    return false;
+    return pieces[y][x] === -1 || pieces[y][x] === -2;
+  };
+
+  const thereIsABadQueen = (y, x) => {
+    return pieces[y][x] === -2;
   };
 
   const thereIsAGoodPiece = (y, x) => {
-    for (const piece of goodPieces)
-      if (piece.y === y && piece.x === x) return true;
-    return false;
+    return pieces[y][x] === 1 || pieces[y][x] === 2;
+  };
+
+  const thereIsAGoodQueen = (y, x) => {
+    return pieces[y][x] === 2;
   };
 
   const thereIsNotAPiece = (y, x) => {
@@ -376,23 +343,7 @@ function App() {
   };
 
   const getPiece = (team, position) => {
-    let piece = {};
-    if (team === "good") {
-      let i = 0;
-      while (!piece.y && i < goodPieces.length) {
-        if (goodPieces[i].y === position.y && goodPieces[i].x === position.x)
-          piece = { ...goodPieces[i] };
-        i += 1;
-      }
-    } else {
-      let i = 0;
-      while (!piece.y && i < badPieces.length) {
-        if (badPieces[i].y === position.y && badPieces[i].x === position.x)
-          piece = { ...badPieces[i] };
-        i += 1;
-      }
-    }
-    return piece;
+    return pieces[position.y][position.x];
   };
 
   const pieceCrossed = (team, oldPosition, newPosition) => {
@@ -458,14 +409,11 @@ function App() {
 
   const movePiece = (team, y, x, oldPosition) => {
     const newPosition = { y, x };
-    if (team === "good")
-      setGoodPieces({ type: "move", newPosition, oldPosition });
-    else setBadPieces({ type: "move", newPosition, oldPosition });
+    setPieces({ type: "move", team, newPosition, oldPosition });
   };
 
   const killPiece = (team, y, x) => {
-    if (team === "good") setGoodPieces({ type: "kill", position: { y, x } });
-    else setBadPieces({ type: "kill", position: { y, x } });
+    setPieces({ type: "kill", team, position: { y, x } });
   };
 
   const cleanField = () => {
@@ -529,8 +477,7 @@ function App() {
   }, []);
 
   const promoteQueen = (team) => {
-    if (team === "good") setGoodPieces({ type: "promotion", team: "good" });
-    else setBadPieces({ type: "promotion", team: "bad" });
+    setPieces({ type: "promotion", team });
   };
 
   useEffect(() => {
@@ -538,49 +485,6 @@ function App() {
   }, [movedPiece]);
 
   // components
-
-  const GoodPiece = (props) => {
-    const { id, queen } = props;
-    return (
-      <IconButton
-        sx={{ width: "100%", height: "100%" }}
-        disabled={!started}
-        id={id}
-        onClick={selectGoodPiece}
-        color="success"
-      >
-        {queen ? (
-          <SecurityIcon sx={{ zIndex: 2 }} />
-        ) : (
-          <AccessibilityNewIcon sx={{ zIndex: 2 }} />
-        )}
-      </IconButton>
-    );
-  };
-
-  const BadPiece = (props) => {
-    const { id, queen } = props;
-
-    useEffect(() => {
-      console.log(queen, id, props);
-    });
-
-    return (
-      <IconButton
-        sx={{ width: "100%", height: "100%" }}
-        disabled={!started}
-        id={id}
-        onClick={selectBadPiece}
-        color="error"
-      >
-        {queen ? (
-          <AdbIcon sx={{ zIndex: 2 }} />
-        ) : (
-          <TokenIcon sx={{ zIndex: 2 }} />
-        )}
-      </IconButton>
-    );
-  };
 
   const [maxDeep, setMaxDeep] = useState(10);
 
@@ -627,23 +531,10 @@ function App() {
               <Container key={i}>
                 {rows.map((jtem, j) => (
                   <Cell even={(i + j) % 2 !== 0} key={j}>
-                    {thereIsABadPiece(i, j) && (
-                      <BadPiece
-                        id={`${i}:${j}`}
-                        queen={console.log(
-                          isQueenThePiece(i, j, "bad"),
-                          i,
-                          j,
-                          badPieces.forEach((item) => console.log(item))
-                        )}
-                      />
-                    )}
-                    {thereIsAGoodPiece(i, j) && (
-                      <GoodPiece
-                        id={`${i}:${j}`}
-                        queen={isQueenThePiece(i, j, "good")}
-                      />
-                    )}
+                    {thereIsABadPiece(i, j) && <BadPiece id={`${i}:${j}`} />}
+                    {thereIsABadQueen(i, j) && <BadQueen id={`${i}:${j}`} />}
+                    {thereIsAGoodPiece(i, j) && <GoodPiece id={`${i}:${j}`} />}
+                    {thereIsAGoodQueen(i, j) && <GoodQueen id={`${i}:${j}`} />}
                     {field.cells && field.cells[i][j] === "0" && (
                       <Box
                         sx={{
