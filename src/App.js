@@ -20,6 +20,8 @@ import {
 // @mui icons
 import TokenIcon from "@mui/icons-material/Token";
 import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
+import SecurityIcon from "@mui/icons-material/Security";
+import AdbIcon from "@mui/icons-material/Adb";
 
 // own components
 import Cell from "./components/Cell/Cell";
@@ -98,6 +100,8 @@ function App() {
           y: botAction[0],
           x: botAction[1],
         });
+        console.log(botAction);
+        if (botAction[2] === 7) promoteQueen("bad");
         setBotPlaying(false);
         setTurns(turns + 1);
       }, 500);
@@ -129,6 +133,26 @@ function App() {
   const piecesReducer = (teamPieces, action) => {
     const { type } = action;
     switch (type) {
+      case "promotion": {
+        const { team } = action;
+        const newArray = [...teamPieces];
+        console.log("hola");
+        for (let i = 0; i < newArray.length; i += 1) {
+          if (
+            (newArray[i].y === 0 && team === "good") ||
+            (newArray[i].y === 7 && team === "bad")
+          ) {
+            console.log(
+              newArray[i].y === 0 && team === "good",
+              newArray[i].y === 7 && team === "bad",
+              newArray[i],
+              team
+            );
+            if (!newArray[i].queen) newArray[i].queen = true;
+          }
+        }
+        return newArray;
+      }
       case "move": {
         const { newPosition, oldPosition } = action;
         const newArray = [...teamPieces];
@@ -195,6 +219,23 @@ function App() {
     { y: 2, x: 6, queen: false },
     { y: 1, x: 7, queen: false },
   ]);
+
+  const isQueenThePiece = (y, x, team) => {
+    badPieces.forEach((item) => {
+      if (item.y === y && item.x === x) return item.queen;
+      return false;
+    });
+    /* if (team === "good")
+      goodPieces.forEach((item) => {
+        if (item.y === y && item.x === x) return item.queen;
+      });
+    else
+      badPieces.forEach((item) => {
+        if (item.y === y && item.x === x) return item.queen;
+        return false;
+      });
+    */
+  };
 
   const thereIsABadPiece = (y, x) => {
     for (const piece of badPieces)
@@ -487,32 +528,56 @@ function App() {
     setField({ type: "init", array: newField });
   }, []);
 
+  const promoteQueen = (team) => {
+    if (team === "good") setGoodPieces({ type: "promotion", team: "good" });
+    else setBadPieces({ type: "promotion", team: "bad" });
+  };
+
+  useEffect(() => {
+    if (playerMove.y === 0) promoteQueen("good");
+  }, [movedPiece]);
+
   // components
 
   const GoodPiece = (props) => {
-    const { id } = props;
+    const { id, queen } = props;
     return (
       <IconButton
+        sx={{ width: "100%", height: "100%" }}
         disabled={!started}
         id={id}
         onClick={selectGoodPiece}
         color="success"
       >
-        <AccessibilityNewIcon sx={{ zIndex: 2 }} />
+        {queen ? (
+          <SecurityIcon sx={{ zIndex: 2 }} />
+        ) : (
+          <AccessibilityNewIcon sx={{ zIndex: 2 }} />
+        )}
       </IconButton>
     );
   };
 
   const BadPiece = (props) => {
-    const { id } = props;
+    const { id, queen } = props;
+
+    useEffect(() => {
+      console.log(queen, id, props);
+    });
+
     return (
       <IconButton
+        sx={{ width: "100%", height: "100%" }}
         disabled={!started}
         id={id}
         onClick={selectBadPiece}
         color="error"
       >
-        <TokenIcon sx={{ zIndex: 2 }} />
+        {queen ? (
+          <AdbIcon sx={{ zIndex: 2 }} />
+        ) : (
+          <TokenIcon sx={{ zIndex: 2 }} />
+        )}
       </IconButton>
     );
   };
@@ -562,8 +627,23 @@ function App() {
               <Container key={i}>
                 {rows.map((jtem, j) => (
                   <Cell even={(i + j) % 2 !== 0} key={j}>
-                    {thereIsABadPiece(i, j) && <BadPiece id={`${i}:${j}`} />}
-                    {thereIsAGoodPiece(i, j) && <GoodPiece id={`${i}:${j}`} />}
+                    {thereIsABadPiece(i, j) && (
+                      <BadPiece
+                        id={`${i}:${j}`}
+                        queen={console.log(
+                          isQueenThePiece(i, j, "bad"),
+                          i,
+                          j,
+                          badPieces.forEach((item) => console.log(item))
+                        )}
+                      />
+                    )}
+                    {thereIsAGoodPiece(i, j) && (
+                      <GoodPiece
+                        id={`${i}:${j}`}
+                        queen={isQueenThePiece(i, j, "good")}
+                      />
+                    )}
                     {field.cells && field.cells[i][j] === "0" && (
                       <Box
                         sx={{
