@@ -107,7 +107,21 @@ function App() {
 
   const [selectedPiece, setSelectedPiece] = useState({});
 
-  const piecesReducer = (pieceState, action) => {};
+  const piecesReducer = (pieceState, action) => {
+    switch (action) {
+      
+    }
+    return [
+      [-1, 0, -1, 0, -1, 0, -1, 0],
+      [0, -1, 0, -1, 0, -1, 0, -1],
+      [-1, 0, -1, 0, -1, 0, -1, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 1, 0, 1, 0, 1, 0, 1],
+      [1, 0, 1, 0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0, 1, 0, 1],
+    ];
+  };
 
   const [pieces, setPieces] = useReducer(piecesReducer, [
     [-1, 0, -1, 0, -1, 0, -1, 0],
@@ -222,30 +236,23 @@ function App() {
 
   const selectGoodPiece = (e) => {
     let node = e.target;
-    if (node.nodeName.toLowerCase() === "svg") node = node.parentNode;
-    if (node.nodeName.toLowerCase() === "path") node = node.parentNode;
+    while (node.nodeName.toLowerCase() !== "button") node = node.parentNode;
     const { id } = node;
     const [y, x] = id.split(":");
     const nY = Number(y);
     const nX = Number(x);
-    const newField = field;
-    for (let i = 0; i < field.cells.length; i += 1)
-      for (let j = 0; j < field.cells[0].length; j += 1)
-        newField.cells[i][j] = i;
+    cleanField();
 
     // looking for possibles steps
-
-    const piece = getPiece("good", { y: nY, x: nX });
-    if (piece.y) {
-      const victims = lookForVictims(piece);
-      victims.forEach((item) => {
-        newField.cells[item.y][item.x] = {
-          target: `${item.y}:${item.x}`,
-        };
-      });
-      setField({ type: "set", array: newField });
-      setSelectedPiece({ y: nY, x: nX });
-    }
+    const newField = field;
+    const victims = lookForVictims({ y: nY, x: nX });
+    victims.forEach((item) => {
+      newField.cells[item.y][item.x] = {
+        target: `${item.y}:${item.x}`,
+      };
+    });
+    setField({ type: "set", array: newField });
+    setSelectedPiece({ y: nY, x: nX });
   };
 
   const selectBadPiece = (e) => {
@@ -291,7 +298,7 @@ function App() {
     let localY = position.y - 1;
     let localX = position.x - 1;
     const result = [];
-    if (position.queen) {
+    if (pieces[position.y][position.x] === 2) {
       // bottom-left
       // bottom-right
     }
@@ -342,16 +349,21 @@ function App() {
     return result;
   };
 
-  const getPiece = (team, position) => {
-    return pieces[position.y][position.x];
+  const getPiece = (position, team = undefined) => {
+    if (!team) return pieces[position.y][position.x];
+    const piece = pieces[position.y][position.x];
+    if (team === "good" && thereIsAGoodPiece(position.y, position.x))
+      return piece;
+    else if (team === "bad" && thereIsABadPiece(position.y, position.x))
+      return 0;
   };
 
   const pieceCrossed = (team, oldPosition, newPosition) => {
-    const piece = getPiece(team === "good" ? "bad" : "good", oldPosition);
+    const piece = getPiece(oldPosition);
     const toKill = [];
     let localY = oldPosition.y;
     let localX = oldPosition.x;
-    if (piece.y) {
+    if (piece !== 0) {
       // direction
       // top - left
       localY -= 1;
@@ -362,7 +374,7 @@ function App() {
           x: localX,
         });
 
-        if (pieceKilled.y) toKill.push(pieceKilled);
+        if (pieceKilled !== 0) toKill.push(pieceKilled);
         localY -= 1;
         localX -= 1;
       }
@@ -375,7 +387,7 @@ function App() {
           x: localX,
         });
 
-        if (pieceKilled.y) toKill.push(pieceKilled);
+        if (pieceKilled !== 0) toKill.push(pieceKilled);
         localY -= 1;
         localX += 1;
       }
@@ -387,7 +399,7 @@ function App() {
           y: localY,
           x: localX,
         });
-        if (pieceKilled.y) toKill.push(pieceKilled);
+        if (pieceKilled !== 0) toKill.push(pieceKilled);
         localY += 1;
         localX -= 1;
       }
@@ -399,7 +411,7 @@ function App() {
           y: localY,
           x: localX,
         });
-        if (pieceKilled.y) toKill.push(pieceKilled);
+        if (pieceKilled !== 0) toKill.push(pieceKilled);
         localY += 1;
         localX += 1;
       }
@@ -531,10 +543,34 @@ function App() {
               <Container key={i}>
                 {rows.map((jtem, j) => (
                   <Cell even={(i + j) % 2 !== 0} key={j}>
-                    {thereIsABadPiece(i, j) && <BadPiece id={`${i}:${j}`} />}
-                    {thereIsABadQueen(i, j) && <BadQueen id={`${i}:${j}`} />}
-                    {thereIsAGoodPiece(i, j) && <GoodPiece id={`${i}:${j}`} />}
-                    {thereIsAGoodQueen(i, j) && <GoodQueen id={`${i}:${j}`} />}
+                    {thereIsABadPiece(i, j) && (
+                      <BadPiece
+                        id={`${i}:${j}`}
+                        started={started}
+                        selectBadPiece={selectBadPiece}
+                      />
+                    )}
+                    {thereIsABadQueen(i, j) && (
+                      <BadQueen
+                        id={`${i}:${j}`}
+                        started={started}
+                        selectBadPiece={selectBadPiece}
+                      />
+                    )}
+                    {thereIsAGoodPiece(i, j) && (
+                      <GoodPiece
+                        id={`${i}:${j}`}
+                        started={started}
+                        selectGoodPiece={selectGoodPiece}
+                      />
+                    )}
+                    {thereIsAGoodQueen(i, j) && (
+                      <GoodQueen
+                        id={`${i}:${j}`}
+                        started={started}
+                        selectGoodPiece={selectGoodPiece}
+                      />
+                    )}
                     {field.cells && field.cells[i][j] === "0" && (
                       <Box
                         sx={{
