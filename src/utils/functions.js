@@ -1,8 +1,8 @@
 // player 0 are black pieces and 1 white pieces
 
 const edge = {
-	nodeId: 0,
-	move: [-1, -1, -1, -1],
+  nodeId: 0,
+  move: [-1, -1, -1, -1],
 };
 const compareEdges = (move1, move2) => {
     if(move1.length != move2.length)   return 0;
@@ -11,41 +11,72 @@ const compareEdges = (move1, move2) => {
         if( move1[i]!= move2[i])
             return 0;
     return 1;
+
 };
 const node = {
-	board: [],
-	value: 0,
-	edges: [],
-	nodeId: 0,
+  board: [],
+  value: 0,
+  edges: [],
+  nodeId: 0,
 };
 const _newEdge = {
-	board: [],
-	parent: 0,
-	moves: [],
-	value: 0,
+  board: [],
+  parent: 0,
+  moves: [],
+  value: 0,
 };
 const Nodes = [];
 var N = 0;
 var LastNode = 0,
-	GoodGuy = -1;
+  GoodGuy = -1;
 //move on the board
 const Mf = [1, 1, -1, -1];
 const Mc = [1, -1, 1, -1];
 
 const copyBoard = (board) => {
-	let newBoard = [];
-	for (let i = 0; i < 8; i++) {
-		newBoard.push([]);
-		newBoard[i] = [...board[i]];
-	}
-	return newBoard;
+  let newBoard = [];
+  for (let i = 0; i < 8; i++) {
+    newBoard.push([]);
+    newBoard[i] = [...board[i]];
+  }
+  return newBoard;
 };
 
 const assert = (condition, message) => {
-	if (!condition) {
-		throw new Error(message || "Assertion failed");
-	}
+  if (!condition) {
+    throw new Error(message || "Assertion failed");
+  }
 };
+const possibleMove = (board, i, j, k, cantMoves = 1) => {
+  let piece = board[i][j];
+  if (
+    i + Mf[k] * cantMoves >= 8 ||
+    j + Mc[k] * cantMoves >= 8 ||
+    i + Mf[k] * cantMoves < 0 ||
+    j + Mc[k] * cantMoves < 0
+  )
+    return 0;
+  //empty space
+  if (board[i + Mf[k] * cantMoves][j + Mc[k] * cantMoves] == 0) return 1;
+  //friendly piece
+  if (board[i + Mf[k] * cantMoves][j + Mc[k] * cantMoves] * piece > 0) return 0;
+  //  enemy piece
+  if (board[i + Mf[k] * cantMoves][j + Mc[k] * cantMoves] * piece < 0) {
+    //if next step out of the board
+    if (
+      i + Mf[k] * (cantMoves + 1) < 8 &&
+      j + Mc[k] * (cantMoves + 1) < 8 &&
+      i + Mf[k] * (cantMoves + 1) >= 0 &&
+      j + Mc[k] * (cantMoves + 1) >= 0
+    )
+      return 0;
+    //if next step is taked
+    if (board[i + Mf[k] * (cantMoves + 1)][j + Mc[k] * (cantMoves + 1)] != 0)
+      return 0;
+    return 1;
+  }
+};
+
 const possibleMove = (board, i, j, k, cantMoves = 1) =>{
 	let piece =  board[i][j];
 	if (
@@ -78,46 +109,43 @@ const possibleMove = (board, i, j, k, cantMoves = 1) =>{
 	}
 }
 const areMoves = (board) => {
-	for (let i = 0; i < 8; i++)
-		for (let j = 0; j < 8; j++) {
-			if (Math.abs(board[i][j]) == 1) {
-				// if piece is white use second pair of move, first pair otherwise
-				let moves = board[i][j] == 1 ? 2 : 0;
-				for (let k = moves; k < moves * 2; k++) {
-
-					// [areMove, , , ,] = //canMove(board, i, j, board[i][j], k);
-					if (possibleMove(board, i, j, k)) return 1;
-				}
-			}
-			if (Math.abs(board[i][j]) == 2) {
-				for (let k = 0; k < 4; k++) {
-					let areMove;
-					// [areMove, , , ,] = d//canMove(board, i, j, board[i][j], k);
-					if (possibleMove(board, i, j, k)) return 1;
-
-				}
-			}
-		}
-	return 0;
+  for (let i = 0; i < 8; i++)
+    for (let j = 0; j < 8; j++) {
+      if (Math.abs(board[i][j]) == 1) {
+        // if piece is white use second pair of move, first pair otherwise
+        let moves = board[i][j] == 1 ? 2 : 0;
+        for (let k = moves; k < moves * 2; k++) {
+          // [areMove, , , ,] = //canMove(board, i, j, board[i][j], k);
+          if (possibleMove(board, i, j, k)) return 1;
+        }
+      }
+      if (Math.abs(board[i][j]) == 2) {
+        for (let k = 0; k < 4; k++) {
+          let areMove;
+          // [areMove, , , ,] = d//canMove(board, i, j, board[i][j], k);
+          if (possibleMove(board, i, j, k)) return 1;
+        }
+      }
+    }
+  return 0;
 };
 const calcValue = (nodeId) => {
-	let trt = 0;
-	if (!areMoves(Nodes[nodeId].board))
-		return 99999 * GoodGuy;
-	// heuristic is the sum of the pieces value 1 to simple pieces and 8 to queens, white have positive value and blackhave negative
-	for (let i = 0; i < 8; i++)
-		for (let j = 0; j < 8; j++)
-			trt =
-				trt +
-				Nodes[nodeId].board[i][j] *
-				Nodes[nodeId].board[i][j] *
-				Nodes[nodeId].board[i][j];
-	return trt * GoodGuy;
+  let trt = 0;
+  if (!areMoves(Nodes[nodeId].board)) return 99999 * GoodGuy;
+  // heuristic is the sum of the pieces value 1 to simple pieces and 8 to queens, white have positive value and blackhave negative
+  for (let i = 0; i < 8; i++)
+    for (let j = 0; j < 8; j++)
+      trt =
+        trt +
+        Nodes[nodeId].board[i][j] *
+          Nodes[nodeId].board[i][j] *
+          Nodes[nodeId].board[i][j];
+  return trt * GoodGuy;
 };
 
 const isQueen = (board, i, j) => {
-	if (board[i][j] < 0 && i == 7) board[i][j] = board[i][j] * 2;
-	if (board[i][j] > 0 && i == 0) board[i][j] = board[i][j] * 2;
+  if (board[i][j] < 0 && i == 7) board[i][j] = board[i][j] * 2;
+  if (board[i][j] > 0 && i == 0) board[i][j] = board[i][j] * 2;
 };
 
 /****
@@ -175,16 +203,17 @@ const canMove = (board, i, j, piece, k, cantMoves = 1) => {
 	} else {
 		assert(false, "WTF ERROR on canMove");
 	}
+
 };
 /**
- * 
- * @param {*} currentNode 
- * @param {*} i 
- * @param {*} j 
- * @param {*} board 
- * @param {*} moves 
- * @param {*} value 
- * @param {*} storeNodes 
+ *
+ * @param {*} currentNode
+ * @param {*} i
+ * @param {*} j
+ * @param {*} board
+ * @param {*} moves
+ * @param {*} value
+ * @param {*} storeNodes
  */
 const eatPieces = (
 	currentNode,
@@ -239,6 +268,7 @@ const eatPieces = (
 	newEdge.parent = currentNode;
 	newEdge.value = value < 0 ? value * -1 : value;
 	storeNodes.push(newEdge);
+
 };
 
 /**
@@ -249,31 +279,31 @@ const eatPieces = (
  * @param {Boolean} player 0 White pieces , 1 Black pieces
  */
 const createEdges = (currentNode, level, maxDeep, player) => {
-	let board = Nodes[currentNode].board;
-	let piece = player == 0 ? 1 : -1;
-	let hasEaten = false;
-	let PossibleNode = [];
+  let board = Nodes[currentNode].board;
+  let piece = player == 0 ? 1 : -1;
+  let hasEaten = false;
+  let PossibleNode = [];
 
-	for (let i = 0; i < 8; i++)
-		for (let j = 0; j < 8; j++) {
-			if (board[i][j] == piece) {
-				// if piece is white use second pair of move, first pair otherwise
-				let moves = piece == 1 ? 2 : 0;
-				for (let k = moves; k < 2 + moves; k++) {
-					let newBoard = copyBoard(board);
-					let band, newI, newJ, value;
-					//new pos and new board created
-					[band, newI, newJ, value] = canMove(newBoard, i, j, piece, k);
-					if (band == 0) continue;
+  for (let i = 0; i < 8; i++)
+    for (let j = 0; j < 8; j++) {
+      if (board[i][j] == piece) {
+        // if piece is white use second pair of move, first pair otherwise
+        let moves = piece == 1 ? 2 : 0;
+        for (let k = moves; k < 2 + moves; k++) {
+          let newBoard = copyBoard(board);
+          let band, newI, newJ, value;
+          //new pos and new board created
+          [band, newI, newJ, value] = canMove(newBoard, i, j, piece, k);
+          if (band == 0) continue;
 
-					if (band == 1) {
-						let newEdge = {... _newEdge};
-						newEdge.board = newBoard;
-						newEdge.moves = [i, j, newI, newJ];
-						newEdge.parent = currentNode;
-						newEdge.value = value;
-						PossibleNode.push(newEdge);
-					}
+          if (band == 1) {
+            let newEdge = { ..._newEdge };
+            newEdge.board = newBoard;
+            newEdge.moves = [i, j, newI, newJ];
+            newEdge.parent = currentNode;
+            newEdge.value = value;
+            PossibleNode.push(newEdge);
+          }
 
 					if (band == 2) {
 						hasEaten = true;
@@ -385,6 +415,7 @@ const createEdges = (currentNode, level, maxDeep, player) => {
 		MinMax(N - 1, level + 1, maxDeep, !player);
 	}
 	
+
 };
 
 /**
@@ -405,46 +436,46 @@ export const MinMax = (
   alfa = 0,
   beta = 0
 ) => {
-	// Create Edges
-	if (level < maxDeep) {
-		if (Nodes[currentNode].edges.length == 0) {
-			createEdges(currentNode, level, maxDeep, player);
-		} else {
-			//move through children
-			for (let newEdge of Nodes[currentNode].edges) {
-				MinMax(newEdge.nodeId, level + 1, maxDeep, !player);
-			}
-		}
-	} else {
-		Nodes[currentNode].value = calcValue(currentNode);
-		return;
-	}
+  // Create Edges
+  if (level < maxDeep) {
+    if (Nodes[currentNode].edges.length == 0) {
+      createEdges(currentNode, level, maxDeep, player);
+    } else {
+      //move through children
+      for (let newEdge of Nodes[currentNode].edges) {
+        MinMax(newEdge.nodeId, level + 1, maxDeep, !player);
+      }
+    }
+  } else {
+    Nodes[currentNode].value = calcValue(currentNode);
+    return;
+  }
 
-	let value = -9999;
-	let move = [],
-		nodeMove;
-	if (level % 2 == 1) value = 9999;
-	for (let newEdge of Nodes[currentNode].edges) {
-		let newNode = newEdge.nodeId;
-		if (newNode >= N) console.log("here");
-		//Max
-		if (level % 2 == 0) {
-			if (value < Nodes[newNode].value) {
-				value = Nodes[newNode].value;
-				move = newEdge.move;
-				nodeMove = newEdge.nodeId;
-			}
-		}
-		//Min
-		else if (value > Nodes[newNode].value) {
-			value = Nodes[newNode].value;
-			move = newEdge.move;
-		}
-	}
-	Nodes[currentNode].value = value;
-	LastNode = nodeMove;
+  let value = -9999;
+  let move = [],
+    nodeMove;
+  if (level % 2 == 1) value = 9999;
+  for (let newEdge of Nodes[currentNode].edges) {
+    let newNode = newEdge.nodeId;
+    if (newNode >= N) console.log("here");
+    //Max
+    if (level % 2 == 0) {
+      if (value < Nodes[newNode].value) {
+        value = Nodes[newNode].value;
+        move = newEdge.move;
+        nodeMove = newEdge.nodeId;
+      }
+    }
+    //Min
+    else if (value > Nodes[newNode].value) {
+      value = Nodes[newNode].value;
+      move = newEdge.move;
+    }
+  }
+  Nodes[currentNode].value = value;
+  LastNode = nodeMove;
 
-	return [nodeMove, move];
+  return [nodeMove, move];
 };
 
 /**
@@ -457,6 +488,7 @@ export const MinMax = (
  * @param {Boolean} player 0 White pieces , 1 Black pieces
  * @returns {Array} Returns an Array with the next move
  */
+
 
  export const MiniMaxMove = (userMoves, maxDeep = 4, player = 0) => {
     let band = false, botMoves;
@@ -472,6 +504,7 @@ export const MinMax = (
 	console.log(Nodes[LastNode]);
     return botMoves;
 }
+
 
 /**
  * @description Initialize Minimax
@@ -489,16 +522,15 @@ export const MinMax = (
     [0, 1, 0, 1, 0, 1, 0, 1],
   ],
   goodGuy = -1
-
 ) => {
-	//2 1/ 3 0
-	GoodGuy = goodGuy;
-	let startNode = { ...node };
-	startNode.board = initialBoard;
-	startNode.edges = [];
-	startNode.nodeId = N;
-	Nodes.push(startNode);
-	N++;
+  //2 1/ 3 0
+  GoodGuy = goodGuy;
+  let startNode = { ...node };
+  startNode.board = initialBoard;
+  startNode.edges = [];
+  startNode.nodeId = N;
+  Nodes.push(startNode);
+  N++;
 };
 // ! remove  when end testing
 // InitMinMax()
@@ -513,7 +545,6 @@ export const MinMax = (
 // console.log(Nodes[LastNode].board);
 // // hasta aqui ^-^ bien
 
-
 // console.log("play 3", MiniMaxMove(6, 4, 4, 2, 2, 1));
 // console.log(Nodes[LastNode].board);
 
@@ -526,8 +557,10 @@ export const MinMax = (
 // console.log("play 6", MiniMaxMove(7, 3, 6, 2, 2, 1));
 // console.log(Nodes[LastNode].board);
 
+
 // console.log("play 7", MiniMaxMove(6, 2, 5, 3, 2, 1));
 // console.log(Nodes[LastNode].board);
 
 // console.log("play 8", MiniMaxMove(4, 2, 3, 1, 2, 1));
 // console.log(Nodes[LastNode].board);
+
