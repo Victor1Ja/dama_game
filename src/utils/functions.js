@@ -1,13 +1,16 @@
-// TODO ifLose 
-// TODO cuando come no solo cojer la mejor, si hay varias con igual cantidad valor 
 // player 0 are black pieces and 1 white pieces
 
 const edge = {
 	nodeId: 0,
 	move: [-1, -1, -1, -1],
 };
-const EdgeToStr = (move) => {
-	return `${move[0]} ${move[1]}\\${move[2]} ${move[3]}`;
+const compareEdges = (move1, move2) => {
+    if(move1.length != move2.length)   return 0;
+
+    for( let i = 0 ; i < move2.length; i ++)
+        if( move1[i]!= move2[i])
+            return 0;
+    return 1;
 };
 const node = {
 	board: [],
@@ -236,7 +239,6 @@ const eatPieces = (
 	newEdge.parent = currentNode;
 	newEdge.value = value < 0 ? value * -1 : value;
 	storeNodes.push(newEdge);
-	//! console.log(newEdge)
 };
 
 /**
@@ -331,7 +333,6 @@ const createEdges = (currentNode, level, maxDeep, player) => {
 				}
 			}
 		}
-	//cambiar chosenone por theChosensOne y hacer un arreglo de los que tengan el mismo cantidad valor
 	let chosenOnes = [],
 		maxSize = 0,
 		maxValue = 0;
@@ -457,25 +458,20 @@ const MinMax = (
  * @returns {Array} Returns an Array with the next move
  */
 
-const MiniMaxMove = (i, j, moveI, moveJ, maxDeep = 4, player = 0) => {
-	let band = false, move;
-	for (const newEdge of Nodes[LastNode].edges) {
-		let str = EdgeToStr(newEdge.move);
-		if (`${i} ${j}\\${moveI} ${moveJ}` == str) {
-			LastNode = newEdge.nodeId;
-			band = true;
-			break;
-		}
-	}
-	//for testing only
-	if (!band) {
-		console.log(Nodes[LastNode].edges);
-	}
-	assert(band == true, "Not edge found");
-	[LastNode, move] = MinMax(LastNode, 0, maxDeep, player);
+const MiniMaxMove = (userMoves, maxDeep = 4, player = 0) => {
+    let band = false, botMoves;
+    for (const newEdge of Nodes[LastNode].edges) {
+        if (compareEdges(userMoves,newEdge.move )) {
+            LastNode = newEdge.nodeId;
+            band = true;
+            break;
+        }
+    }
+    assert(band == true, "Not edge found");
+    [LastNode, botMoves] = MinMax(LastNode, 0, maxDeep, player);
 	console.log(Nodes[LastNode]);
-	return move;
-};
+    return botMoves;
+}
 
 /**
  * @description Initialize Minimax
@@ -505,33 +501,33 @@ const InitMinMax = (
 	N++;
 };
 // ! remove  when end testing
-InitMinMax()
-//primera jugada
-console.log(MinMax(0, 0, 2, 1));
-console.log(Nodes[LastNode].board);
-//N siguientes jugadas
-console.log("play 1", MiniMaxMove(5, 5, 4, 6, 2, 1));
-console.log(Nodes[LastNode].board);
+// InitMinMax()
+// //primera jugada
+// console.log(MinMax(0, 0, 2, 1));
+// console.log(Nodes[LastNode].board);
+// //N siguientes jugadas
+// console.log("play 1", MiniMaxMove([5, 5, 4, 6], 2, 1));
+// console.log(Nodes[LastNode].board);
 
-console.log("play 2", MiniMaxMove(6, 6, 5, 5, 2, 1));
-console.log(Nodes[LastNode].board);
-// hasta aqui ^-^ bien
+// console.log("play 2", MiniMaxMove([6, 6, 5, 5], 2, 1));
+// console.log(Nodes[LastNode].board);
+// // hasta aqui ^-^ bien
 
 
-console.log("play 3", MiniMaxMove(6, 4, 4, 2, 2, 1));
-console.log(Nodes[LastNode].board);
+// console.log("play 3", MiniMaxMove(6, 4, 4, 2, 2, 1));
+// console.log(Nodes[LastNode].board);
 
-console.log("play 4", MiniMaxMove(6, 2, 5, 1, 2, 1));
-console.log(Nodes[LastNode].board);
+// console.log("play 4", MiniMaxMove(6, 2, 5, 1, 2, 1));
+// console.log(Nodes[LastNode].board);
 
-console.log("play 5", MiniMaxMove(5, 5, 4, 6, 2, 1));
-console.log(Nodes[LastNode].board);
+// console.log("play 5", MiniMaxMove(5, 5, 4, 6, 2, 1));
+// console.log(Nodes[LastNode].board);
 
-console.log("play 6", MiniMaxMove(7, 3, 6, 2, 2, 1));
-console.log(Nodes[LastNode].board);
+// console.log("play 6", MiniMaxMove(7, 3, 6, 2, 2, 1));
+// console.log(Nodes[LastNode].board);
 
-console.log("play 7", MiniMaxMove(6, 2, 5, 3, 2, 1));
-console.log(Nodes[LastNode].board);
+// console.log("play 7", MiniMaxMove(6, 2, 5, 3, 2, 1));
+// console.log(Nodes[LastNode].board);
 
-console.log("play 8", MiniMaxMove(4, 2, 3, 1, 2, 1));
-console.log(Nodes[LastNode].board);
+// console.log("play 8", MiniMaxMove(4, 2, 3, 1, 2, 1));
+// console.log(Nodes[LastNode].board);
