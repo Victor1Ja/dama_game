@@ -78,10 +78,10 @@ function App() {
     if (turns > 1 && botPlaying) {
       setTimeout(() => {
         const botAction = MiniMaxMove(
-          movedPiece.y,
+          [movedPiece.y,
           movedPiece.x,
           playerMove.y,
-          playerMove.x,
+          playerMove.x],
           2,
           1
         );
