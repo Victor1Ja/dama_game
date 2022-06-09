@@ -62,10 +62,10 @@ const possibleMove = (board, i, j, k, cantMoves = 1) =>{
 	if (board[i + Mf[k] * cantMoves][j + Mc[k] * cantMoves] * piece < 0) {
 		//if next step out of the board 
 		if (
-			i + Mf[k] * (cantMoves + 1) < 8 &&
+			!(i + Mf[k] * (cantMoves + 1) < 8 &&
 			j + Mc[k] * (cantMoves + 1) < 8 &&
 			i + Mf[k] * (cantMoves + 1) >= 0 &&
-			j + Mc[k] * (cantMoves + 1) >= 0
+			j + Mc[k] * (cantMoves + 1) >= 0)
 		)
 			return 0;
 		//if next step is taked
@@ -146,7 +146,7 @@ const canMove = (board, i, j, piece, k, cantMoves = 1) => {
 		return [0, -1, -1, 0];
 	//opponent piece
 	if (board[i + Mf[k] * cantMoves][j + Mc[k] * cantMoves] * piece < 0) {
-		//if next step out of the board or not empty space for eat
+		//if next step inside of the board or not empty space for eat
 		if (
 			i + Mf[k] * (cantMoves + 1) < 8 &&
 			j + Mc[k] * (cantMoves + 1) < 8 &&
@@ -510,10 +510,10 @@ InitMinMax()
 console.log(MinMax(0, 0, 2, 1));
 console.log(Nodes[LastNode].board);
 //N siguientes jugadas
-console.log("play 1", MiniMaxMove(5, 1, 4, 0, 2, 1));
+console.log("play 1", MiniMaxMove(5, 5, 4, 6, 2, 1));
 console.log(Nodes[LastNode].board);
 
-console.log("play 2", MiniMaxMove(5, 3, 4, 2, 2, 1));
+console.log("play 2", MiniMaxMove(6, 6, 5, 5, 2, 1));
 console.log(Nodes[LastNode].board);
 // hasta aqui ^-^ bien
 
