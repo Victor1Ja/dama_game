@@ -47,35 +47,6 @@ const assert = (condition, message) => {
     throw new Error(message || "Assertion failed");
   }
 };
-const possibleMove = (board, i, j, k, cantMoves = 1) => {
-  let piece = board[i][j];
-  if (
-    i + Mf[k] * cantMoves >= 8 ||
-    j + Mc[k] * cantMoves >= 8 ||
-    i + Mf[k] * cantMoves < 0 ||
-    j + Mc[k] * cantMoves < 0
-  )
-    return 0;
-  //empty space
-  if (board[i + Mf[k] * cantMoves][j + Mc[k] * cantMoves] == 0) return 1;
-  //friendly piece
-  if (board[i + Mf[k] * cantMoves][j + Mc[k] * cantMoves] * piece > 0) return 0;
-  //  enemy piece
-  if (board[i + Mf[k] * cantMoves][j + Mc[k] * cantMoves] * piece < 0) {
-    //if next step out of the board
-    if (
-      i + Mf[k] * (cantMoves + 1) < 8 &&
-      j + Mc[k] * (cantMoves + 1) < 8 &&
-      i + Mf[k] * (cantMoves + 1) >= 0 &&
-      j + Mc[k] * (cantMoves + 1) >= 0
-    )
-      return 0;
-    //if next step is taked
-    if (board[i + Mf[k] * (cantMoves + 1)][j + Mc[k] * (cantMoves + 1)] != 0)
-      return 0;
-    return 1;
-  }
-};
 
 const possibleMove = (board, i, j, k, cantMoves = 1) =>{
 	let piece =  board[i][j];
