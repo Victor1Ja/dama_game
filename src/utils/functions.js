@@ -397,7 +397,7 @@ const createEdges = (currentNode, level, maxDeep, player) => {
  * @param {*} beta  not used
  * @returns {Array} Return a Array with the next node and the next move [NextNode,[i,j,newI,newJ]]
  */
-const MinMax = (
+export const MinMax = (
   currentNode,
   level,
   maxDeep = 4,
@@ -458,7 +458,7 @@ const MinMax = (
  * @returns {Array} Returns an Array with the next move
  */
 
-const MiniMaxMove = (userMoves, maxDeep = 4, player = 0) => {
+ export const MiniMaxMove = (userMoves, maxDeep = 4, player = 0) => {
     let band = false, botMoves;
     for (const newEdge of Nodes[LastNode].edges) {
         if (compareEdges(userMoves,newEdge.move )) {
@@ -477,7 +477,7 @@ const MiniMaxMove = (userMoves, maxDeep = 4, player = 0) => {
  * @description Initialize Minimax
  * @param {Number[][]} initialBoard
  */
-const InitMinMax = (
+ export const InitMinMax = (
   initialBoard = [
     [-1, 0, -1, 0, -1, 0, -1, 0],
     [0, -1, 0, -1, 0, -1, 0, -1],
