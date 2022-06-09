@@ -201,16 +201,16 @@ const eatPieces = (
 	// piece is white moves for going up
 	if (piece == 1) {
 		moveIterator = 2;
-		kMax = 4;
+		moveMax = 4;
 	}
 	// piece is black moves for going down
 	if (piece == -1) {
 		moveIterator = 0;
-		kMax = 2;
+		moveMax = 2;
 	}
 	if (piece * piece == 4) {
 		moveIterator = 0;
-		kMax = 4;
+		moveMax = 4;
 	}
 
 	let newI, newJ, band;
@@ -472,7 +472,7 @@ export const MiniMaxMove = (i, j, moveI, moveJ, maxDeep = 4, player = 0) => {
 	}
 	assert(band == true, "Not edge found");
 	[LastNode, move] = MinMax(LastNode, 0, maxDeep, player);
-	console.log(Nodes[LastNode].value);
+	console.log(Nodes[LastNode]);
 	return move;
 };
 
