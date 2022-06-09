@@ -395,13 +395,13 @@ const createEdges = (currentNode, level, maxDeep, player) => {
  * @param {*} beta  not used
  * @returns {Array} Return a Array with the next node and the next move [NextNode,[i,j,newI,newJ]]
  */
-const MinMax = (
-	currentNode,
-	level,
-	maxDeep = 4,
-	player = false,
-	alfa = 0,
-	beta = 0
+export const MinMax = (
+  currentNode,
+  level,
+  maxDeep = 4,
+  player = false,
+  alfa = 0,
+  beta = 0
 ) => {
 	// Create Edges
 	if (level < maxDeep) {
@@ -455,7 +455,8 @@ const MinMax = (
  * @param {Boolean} player 0 White pieces , 1 Black pieces
  * @returns {Array} Returns an Array with the next move
  */
-const MiniMaxMove = (i, j, moveI, moveJ, maxDeep = 4, player = 0) => {
+
+export const MiniMaxMove = (i, j, moveI, moveJ, maxDeep = 4, player = 0) => {
 	let band = false, move;
 	for (const newEdge of Nodes[LastNode].edges) {
 		let str = EdgeToStr(newEdge.move);
@@ -477,20 +478,21 @@ const MiniMaxMove = (i, j, moveI, moveJ, maxDeep = 4, player = 0) => {
 
 /**
  * @description Initialize Minimax
- * @param {} initialBoard
+ * @param {Number[][]} initialBoard
  */
-const InitMinMax = (
-	initialBoard = [
-		[-1, 0, -1, 0, -1, 0, -1, 0],
-		[0, -1, 0, -1, 0, -1, 0, -1],
-		[-1, 0, -1, 0, -1, 0, -1, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 0, 0, 0, 0, 0, 0, 0],
-		[0, 1, 0, 1, 0, 1, 0, 1],
-		[1, 0, 1, 0, 1, 0, 1, 0],
-		[0, 1, 0, 1, 0, 1, 0, 1],
-	],
-	goodGuy = -1
+export const InitMinMax = (
+  initialBoard = [
+    [-1, 0, -1, 0, -1, 0, -1, 0],
+    [0, -1, 0, -1, 0, -1, 0, -1],
+    [-1, 0, -1, 0, -1, 0, -1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1],
+  ],
+  goodGuy = -1
+
 ) => {
 	//2 1/ 3 0
 	GoodGuy = goodGuy;
@@ -501,7 +503,6 @@ const InitMinMax = (
 	Nodes.push(startNode);
 	N++;
 };
-
 // ! remove  when end testing
 // InitMinMax()
 // //primera jugada
@@ -527,3 +528,4 @@ const InitMinMax = (
 
 // console.log("play 6", MiniMaxMove(7, 3, 6, 2, 2, 1));
 // console.log(Nodes[LastNode].board);
+
