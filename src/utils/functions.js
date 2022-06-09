@@ -225,17 +225,18 @@ const eatPieces = (
 		moves.pop();
 		moves.pop();
 	}
+	if(eat) return;
+
 	newBoard = copyBoard(board);
-	if (!eat) {
-		isQueen(newBoard, i, j);
-		let newEdge = { ..._newEdge };
-		newEdge.board = newBoard;
-		newEdge.moves = [...moves];
-		newEdge.parent = currentNode;
-		newEdge.value = value < 0 ? value * -1 : value;
-		storeNodes.push(newEdge);
-		//! console.log(newEdge)
-	}
+	
+	isQueen(newBoard, i, j);
+	let newEdge = { ..._newEdge };
+	newEdge.board = newBoard;
+	newEdge.moves = [...moves];
+	newEdge.parent = currentNode;
+	newEdge.value = value < 0 ? value * -1 : value;
+	storeNodes.push(newEdge);
+	//! console.log(newEdge)
 };
 
 /**
@@ -395,7 +396,7 @@ const createEdges = (currentNode, level, maxDeep, player) => {
  * @param {*} beta  not used
  * @returns {Array} Return a Array with the next node and the next move [NextNode,[i,j,newI,newJ]]
  */
-export const MinMax = (
+const MinMax = (
   currentNode,
   level,
   maxDeep = 4,
@@ -456,7 +457,7 @@ export const MinMax = (
  * @returns {Array} Returns an Array with the next move
  */
 
-export const MiniMaxMove = (i, j, moveI, moveJ, maxDeep = 4, player = 0) => {
+const MiniMaxMove = (i, j, moveI, moveJ, maxDeep = 4, player = 0) => {
 	let band = false, move;
 	for (const newEdge of Nodes[LastNode].edges) {
 		let str = EdgeToStr(newEdge.move);
@@ -480,7 +481,7 @@ export const MiniMaxMove = (i, j, moveI, moveJ, maxDeep = 4, player = 0) => {
  * @description Initialize Minimax
  * @param {Number[][]} initialBoard
  */
-export const InitMinMax = (
+const InitMinMax = (
   initialBoard = [
     [-1, 0, -1, 0, -1, 0, -1, 0],
     [0, -1, 0, -1, 0, -1, 0, -1],
@@ -504,28 +505,33 @@ export const InitMinMax = (
 	N++;
 };
 // ! remove  when end testing
-// InitMinMax()
-// //primera jugada
-// console.log(MinMax(0, 0, 2, 1));
-// console.log(Nodes[LastNode].board);
-// //N siguientes jugadas
-// console.log("play 1", MiniMaxMove(5, 1, 4, 0, 2, 1));
-// console.log(Nodes[LastNode].board);
+InitMinMax()
+//primera jugada
+console.log(MinMax(0, 0, 2, 1));
+console.log(Nodes[LastNode].board);
+//N siguientes jugadas
+console.log("play 1", MiniMaxMove(5, 1, 4, 0, 2, 1));
+console.log(Nodes[LastNode].board);
 
-// console.log("play 2", MiniMaxMove(5, 3, 4, 2, 2, 1));
-// console.log(Nodes[LastNode].board);
-// // hasta aqui ^-^ bien
+console.log("play 2", MiniMaxMove(5, 3, 4, 2, 2, 1));
+console.log(Nodes[LastNode].board);
+// hasta aqui ^-^ bien
 
 
-// console.log("play 3", MiniMaxMove(6, 4, 4, 2, 2, 1));
-// console.log(Nodes[LastNode].board);
+console.log("play 3", MiniMaxMove(6, 4, 4, 2, 2, 1));
+console.log(Nodes[LastNode].board);
 
-// console.log("play 4", MiniMaxMove(6, 2, 5, 1, 2, 1));
-// console.log(Nodes[LastNode].board);
+console.log("play 4", MiniMaxMove(6, 2, 5, 1, 2, 1));
+console.log(Nodes[LastNode].board);
 
-// console.log("play 5", MiniMaxMove(5, 5, 4, 6, 2, 1));
-// console.log(Nodes[LastNode].board);
+console.log("play 5", MiniMaxMove(5, 5, 4, 6, 2, 1));
+console.log(Nodes[LastNode].board);
 
-// console.log("play 6", MiniMaxMove(7, 3, 6, 2, 2, 1));
-// console.log(Nodes[LastNode].board);
+console.log("play 6", MiniMaxMove(7, 3, 6, 2, 2, 1));
+console.log(Nodes[LastNode].board);
 
+console.log("play 7", MiniMaxMove(6, 2, 5, 3, 2, 1));
+console.log(Nodes[LastNode].board);
+
+console.log("play 8", MiniMaxMove(4, 2, 3, 1, 2, 1));
+console.log(Nodes[LastNode].board);
