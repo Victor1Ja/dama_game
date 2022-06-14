@@ -222,16 +222,8 @@ function App() {
     return pieces[y][x] === -1 || pieces[y][x] === -2;
   };
 
-  const thereIsABadQueen = (y, x) => {
-    return pieces[y][x] === -2;
-  };
-
   const thereIsAGoodPiece = (y, x) => {
     return pieces[y][x] === 1 || pieces[y][x] === 2;
-  };
-
-  const thereIsAGoodQueen = (y, x) => {
-    return pieces[y][x] === 2;
   };
 
   const thereIsNotAPiece = (y, x) => {
@@ -799,6 +791,10 @@ function App() {
   const [maxDeep, setMaxDeep] = useState(10);
 
   useEffect(() => {}, [pieces]);
+
+  const calculatePlayerMove = () => {
+    
+  };
 
   return (
     <ThemeProvider theme={dark}>
