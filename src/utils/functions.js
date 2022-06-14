@@ -397,7 +397,7 @@ const createEdges = (currentNode, level, maxDeep, player) => {
  * @param {Boolean} player 0 White pieces , 1 Black pieces
  * @param {*} alfa not used
  * @param {*} beta  not used
- * @returns {Array} Return a Array with the next node and the next move [NextNode,[i,j,newI,newJ]]
+ * @returns {Array} Return a Array with the next node , the next move and all the next moves [NextNode,[i,j,newI,newJ], allMoves]
  */
 export const MinMax = (
   currentNode,
@@ -445,8 +445,8 @@ export const MinMax = (
   }
   Nodes[currentNode].value = value;
   LastNode = nodeMove;
-
-  return [nodeMove, move];
+  let allMoves = structuredClone(Nodes[LastNode].edges)
+  return [nodeMove, move,allMoves];
 };
 
 /**
@@ -457,7 +457,7 @@ export const MinMax = (
  * @param {Number} moveJ new column position of the piece
  * @param {Number} maxDeep Max Deep of the Game tree
  * @param {Boolean} player 0 White pieces , 1 Black pieces
- * @returns {Array} Returns an Array with the next move
+ * @returns {Array} Returns an Array with the next move on the first position and allMoves on the second
  */
 
 
@@ -473,7 +473,8 @@ export const MinMax = (
     assert(band == true, "Not edge found");
     [LastNode, botMoves] = MinMax(LastNode, 0, maxDeep, player);
 	console.log(Nodes[LastNode]);
-    return botMoves;
+    let allMoves = structuredClone(Nodes[LastNode].edges)
+    return [botMoves,allMoves];
 }
 
 
