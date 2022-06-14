@@ -445,8 +445,8 @@ export const MinMax = (
   }
   Nodes[currentNode].value = value;
   LastNode = nodeMove;
-
-  return [nodeMove, move];
+  let allMoves = structuredClone(Nodes[LastNode].edges)
+  return [nodeMove, move,allMoves];
 };
 
 /**
