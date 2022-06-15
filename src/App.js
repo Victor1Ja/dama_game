@@ -792,10 +792,6 @@ function App() {
 
   useEffect(() => {}, [pieces]);
 
-  const calculatePlayerMove = () => {
-    
-  };
-
   return (
     <ThemeProvider theme={dark}>
       <CssBaseline />
