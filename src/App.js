@@ -87,7 +87,22 @@ function App() {
           });
         } else
           forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
-      else forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
+      else if (trajectories.length > 2) {
+        forBot.push(movedPiece.y);
+        forBot.push(movedPiece.x);
+        let found = false;
+        let i = 0;
+        while (!found && i < trajectories.length) {
+          if (
+            trajectories[i].y === playerMove.y &&
+            trajectories[i].x === playerMove.x
+          )
+            found = true;
+          forBot.push(trajectories[i].y);
+          forBot.push(trajectories[i].x);
+          i += 1;
+        }
+      } else forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
       console.log(forBot, trajectories);
       setTimeout(() => {
         const [botAction, allMoves] = MiniMaxMove(forBot, 2, 1);
@@ -192,12 +207,12 @@ function App() {
     [0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0],
     [0, 1, 0, 1, 0, 1, 0, 1],
-    /*[2, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, -1, 0, -1, 0, 0],
-    [0, 0, 0, 0, 0, 0, 1, 0],
-    [0, 0, 0, -1, 0, 0, 0, 0],
-    [0, 0, 2, 0, 0, 0, 0, 0],
-    [0, 0, 0, 1, 0, 0, 0, 0],
+    /*[0, 0, 0, 0, 0, 0, 2, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],*/
   ]);
