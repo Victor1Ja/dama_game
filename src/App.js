@@ -76,6 +76,7 @@ function App() {
       }
     }
     if (turns > 1 && botPlaying) {
+      console.log(trajectories);
       setTimeout(() => {
         const [botAction,allMoves] = MiniMaxMove(
           [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x],
