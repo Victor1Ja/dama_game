@@ -47,7 +47,7 @@ function App() {
     if (startBot) {
       // is the turn of the bot
       InitMinMax();
-      const [team, botAction,allMoves] = MinMax(0, 0, 2, 1);
+      const [team, botAction, allMoves] = MinMax(0, 0, 2, 1);
       movePiece("bad", botAction[2], botAction[3], {
         y: botAction[0],
         x: botAction[1],
@@ -76,13 +76,36 @@ function App() {
       }
     }
     if (turns > 1 && botPlaying) {
-      console.log(trajectories);
+      let forBot = [];
+      if (trajectories.length === 1)
+        if (trajectories[0].length > 0) {
+          forBot.push(movedPiece.y);
+          forBot.push(movedPiece.x);
+          trajectories[0].forEach((item) => {
+            forBot.push(item.y);
+            forBot.push(item.x);
+          });
+        } else
+          forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
+      else if (trajectories.length > 2) {
+        forBot.push(movedPiece.y);
+        forBot.push(movedPiece.x);
+        let found = false;
+        let i = 0;
+        while (!found && i < trajectories.length) {
+          if (
+            trajectories[i].y === playerMove.y &&
+            trajectories[i].x === playerMove.x
+          )
+            found = true;
+          forBot.push(trajectories[i].y);
+          forBot.push(trajectories[i].x);
+          i += 1;
+        }
+      } else forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
+      console.log(forBot, trajectories);
       setTimeout(() => {
-        const [botAction,allMoves] = MiniMaxMove(
-          [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x],
-          2,
-          1
-        );
+        const [botAction, allMoves] = MiniMaxMove(forBot, 2, 1);
         let killed;
         if (botAction.length === 4) {
           killed = pieceCrossed(
@@ -184,12 +207,12 @@ function App() {
     [0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0],
     [0, 1, 0, 1, 0, 1, 0, 1],
-    /*[2, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, -1, 0, -1, 0, 0],
-    [0, 0, 0, 0, 0, 0, 1, 0],
-    [0, 0, 0, -1, 0, 0, 0, 0],
-    [0, 0, 2, 0, 0, 0, 0, 0],
-    [0, 0, 0, 1, 0, 0, 0, 0],
+    /*[0, 0, 0, 0, 0, 0, 2, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],*/
   ]);
