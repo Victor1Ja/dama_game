@@ -115,8 +115,8 @@ const calcValue = (nodeId) => {
 };
 
 const isQueen = (board, i, j) => {
-	if (board[i][j] < 0 && i == 7) board[i][j] = board[i][j] * 2;
-	if (board[i][j] > 0 && i == 0) board[i][j] = board[i][j] * 2;
+	if (board[i][j] == -1 && i == 7) board[i][j] = board[i][j] * 2;
+	if (board[i][j] == 1 && i == 0) board[i][j] = board[i][j] * 2;
 };
 
 /****
@@ -479,7 +479,19 @@ export const MiniMaxMove = (userMoves, maxDeep = 4, player = 0) => {
 			break;
 		}
 	}
-	assert(band == true, "Not edge found");
+	try {
+		assert(band == true, "Not edge found");	
+	} catch (error) {
+		console.log("***************************");
+		console.log("UserMove");
+		console.log(userMoves);
+		console.log(Nodes[LastNode].edges);
+		console.log(Nodes[LastNode].board);
+		console.log("***************************");
+		throw error;
+	}
+
+	
 	let allMoves;
 	[LastNode, botMoves, allMoves] = MinMax(LastNode, 0, maxDeep, player);
 	console.log(Nodes[LastNode]);
