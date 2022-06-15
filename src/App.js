@@ -78,28 +78,43 @@ function App() {
     if (turns > 1 && botPlaying) {
       setTimeout(() => {
         const botAction = MiniMaxMove(
-          movedPiece.y,
-          movedPiece.x,
-          playerMove.y,
-          playerMove.x,
+          [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x],
           2,
           1
         );
-        const killed = pieceCrossed(
-          "good",
-          { y: botAction[0], x: botAction[1] },
-          { y: botAction[2], x: botAction[3] }
+        let killed;
+        if (botAction.length === 4) {
+          killed = pieceCrossed(
+            "good",
+            { y: botAction[0], x: botAction[1] },
+            { y: botAction[2], x: botAction[3] }
+          );
+          if (killed.length)
+            killed.forEach((item) => {
+              killPiece(item.y, item.x);
+            });
+        } else {
+          let preview = { y: botAction[0], x: botAction[1] };
+          for (let i = 2; i < botAction.length; i += 2) {
+            const item = { y: botAction[i], x: botAction[i + 1] };
+            if (i > 2) preview = { y: botAction[i - 2], x: botAction[i - 1] };
+            killed = pieceCrossed("good", preview, item, i - 2 + 1);
+            if (killed.length) {
+              killed.forEach((item) => {
+                killPiece(item.y, item.x);
+              });
+            }
+          }
+        }
+        movePiece(
+          "bad",
+          botAction[botAction.length - 2],
+          botAction[botAction.length - 1],
+          {
+            y: botAction[0],
+            x: botAction[1],
+          }
         );
-
-        if (killed.length)
-          killed.forEach((item) => {
-            killPiece(item.y, item.x);
-          });
-
-        movePiece("bad", botAction[2], botAction[3], {
-          y: botAction[0],
-          x: botAction[1],
-        });
         promoteQueen("bad");
         setBotPlaying(false);
         setTurns(turns + 1);
@@ -207,16 +222,8 @@ function App() {
     return pieces[y][x] === -1 || pieces[y][x] === -2;
   };
 
-  const thereIsABadQueen = (y, x) => {
-    return pieces[y][x] === -2;
-  };
-
   const thereIsAGoodPiece = (y, x) => {
     return pieces[y][x] === 1 || pieces[y][x] === 2;
-  };
-
-  const thereIsAGoodQueen = (y, x) => {
-    return pieces[y][x] === 2;
   };
 
   const thereIsNotAPiece = (y, x) => {
