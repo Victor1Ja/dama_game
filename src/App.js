@@ -47,7 +47,7 @@ function App() {
     if (startBot) {
       // is the turn of the bot
       InitMinMax();
-      const [team, botAction] = MinMax(0, 0, 2, 1);
+      const [team, botAction,allMoves] = MinMax(0, 0, 2, 1);
       movePiece("bad", botAction[2], botAction[3], {
         y: botAction[0],
         x: botAction[1],
@@ -78,7 +78,7 @@ function App() {
     if (turns > 1 && botPlaying) {
       console.log(trajectories);
       setTimeout(() => {
-        const botAction = MiniMaxMove(
+        const [botAction,allMoves] = MiniMaxMove(
           [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x],
           2,
           1
