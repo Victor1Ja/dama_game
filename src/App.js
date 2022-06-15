@@ -47,7 +47,7 @@ function App() {
     if (startBot) {
       // is the turn of the bot
       InitMinMax();
-      const [team, botAction, allMoves] = MinMax(0, 0, 2, 1);
+      const [, botAction] = MinMax(0, 0, 2, 1);
       movePiece("bad", botAction[2], botAction[3], {
         y: botAction[0],
         x: botAction[1],
@@ -103,9 +103,9 @@ function App() {
           i += 1;
         }
       } else forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
-      console.log(forBot, trajectories);
       setTimeout(() => {
-        const [botAction, allMoves] = MiniMaxMove(forBot, 2, 1);
+        const [botAction, , playerMoves] = MiniMaxMove(forBot, 2, 1);
+        console.log(playerMoves.edges);
         let killed;
         if (botAction.length === 4) {
           killed = pieceCrossed(
@@ -184,6 +184,15 @@ function App() {
         }
         return newPieceState;
       }
+      case "return": {
+        const newPieceState = pieceState;
+        for (let i = 0; i < newPieceState.length; i += 1)
+          for (let j = 0; j < newPieceState[i].length; j += 1) {
+            if (newPieceState[i][j] > 2) newPieceState[i][j] -= 2;
+            else if (newPieceState[i][j] < -2) newPieceState[i][j] += 2;
+          }
+        return newPieceState;
+      }
       default:
         return [
           [-1, 0, -1, 0, -1, 0, -1, 0],
@@ -207,14 +216,14 @@ function App() {
     [0, 1, 0, 1, 0, 1, 0, 1],
     [1, 0, 1, 0, 1, 0, 1, 0],
     [0, 1, 0, 1, 0, 1, 0, 1],
-    /*[0, 0, 0, 0, 0, 0, 2, 0],
+    /*[0, 0, 2, 0, 0, 0, -1, 0],
+    [0, -1, 0, 0, 0, -1, 0, -1],
+    [-1, 0, -1, 0, 0, 0, -1, 0],
+    [0, -2, 0, 0, 0, 1, 0, 1],
+    [-1, 0, 0, 0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 1],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],*/
+    [0, 0, 0, 0, 0, 0, 0, 1],*/
   ]);
 
   const fieldReducer = (fieldState, action) => {
@@ -348,6 +357,8 @@ function App() {
                     kill: true,
                     chain: chain + 1,
                   });
+                  pieces[localY - 1][localX + 1] -= 2;
+                  console.log(pieces);
                   lookForMove(
                     { y: localY, x: localX },
                     chain + 1,
@@ -395,6 +406,8 @@ function App() {
                     kill: true,
                     chain: chain + 1,
                   });
+                  pieces[localY - 1][localX - 1] -= 2;
+                  console.log(pieces);
                   lookForMove(
                     { y: localY, x: localX },
                     chain + 1,
@@ -436,6 +449,8 @@ function App() {
                     kill: true,
                     chain: chain + 1,
                   });
+                  pieces[localY + 1][localX + 1] -= 2;
+                  console.log(pieces);
                   lookForMove(
                     { y: localY, x: localX },
                     chain + 1,
@@ -477,6 +492,8 @@ function App() {
                     kill: true,
                     chain: chain + 1,
                   });
+                  pieces[localY + 1][localX - 1] -= 2;
+                  console.log(pieces);
                   lookForMove(
                     { y: localY, x: localX },
                     chain + 1,
@@ -579,6 +596,7 @@ function App() {
           }
       }
     if (!anotherCall) {
+      setPieces({ type: "return" });
       // getting just kill chains
       const chains = result.filter((item) => {
         if (item.chain) return item;
