@@ -421,7 +421,10 @@ export const MinMax = (
     Nodes[currentNode].value = calcValue(currentNode);
     return;
   }
-
+  if (Nodes[currentNode].edges.length == 0){
+	Nodes[currentNode].value = calcValue(currentNode);
+    return;
+  }
   let value = -9999;
   let move = [],
     nodeMove;
@@ -441,10 +444,13 @@ export const MinMax = (
     else if (value > Nodes[newNode].value) {
       value = Nodes[newNode].value;
       move = newEdge.move;
+	  nodeMove = newEdge.nodeId;
+
     }
   }
   Nodes[currentNode].value = value;
   LastNode = nodeMove;
+  console.log(Nodes[LastNode].edges);
   let allMoves = structuredClone(Nodes[LastNode].edges)
   return [nodeMove, move,allMoves];
 };
@@ -471,9 +477,10 @@ export const MinMax = (
         }
     }
     assert(band == true, "Not edge found");
-    [LastNode, botMoves] = MinMax(LastNode, 0, maxDeep, player);
+	let allMoves;
+    [LastNode, botMoves,allMoves] = MinMax(LastNode, 0, maxDeep, player);
 	console.log(Nodes[LastNode]);
-    let allMoves = structuredClone(Nodes[LastNode].edges)
+    
     return [botMoves,allMoves];
 }
 
