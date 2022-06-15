@@ -271,6 +271,7 @@ const createEdges = (currentNode, level, maxDeep, player) => {
             let newEdge = { ..._newEdge };
             newEdge.board = newBoard;
             newEdge.moves = [i, j, newI, newJ];
+			isQueen(newBoard, newI, newJ);
             newEdge.parent = currentNode;
             newEdge.value = value;
             PossibleNode.push(newEdge);
