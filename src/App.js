@@ -879,12 +879,12 @@ function App() {
     <ThemeProvider theme={dark}>
       <CssBaseline />
       <Box className="App">
-        {/* <Container
+        <Container
           alignItems="start "
           flexDirection="column"
           sx={{ position: "absolute", left: 0, margin: "20px 10px" }}
         >
-          <TextField
+          {/*<TextField
             label="Máxima profundida"
             value={maxDeep}
             onChange={(e) => {
@@ -903,7 +903,7 @@ function App() {
               onChange={(e) => setStartBot(e.target.checked)}
             />
             <label>Bot primero </label>
-          </Container>
+          </Container> */}
           <Button
             sx={{ cursor: "pointer !important" }}
             variant="contained"
@@ -911,7 +911,7 @@ function App() {
           >
             Comenzar
           </Button>
-        </Container> */}
+        </Container>
         <header className="App-header">
           {pieces.map((item, i) => {
             return (
