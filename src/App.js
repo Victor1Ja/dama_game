@@ -57,28 +57,25 @@ function App() {
       setPlayerMoves(playerMoves);
       setBotPlaying(false);
       setTurns(turns + 1);
-    }
+    } else setBotPlaying(false);
   };
 
   useEffect(() => {
     if (turns === 1) {
-      if (botPlaying) {
-        // turn board to number after player move
-        const newField = [];
-        for (let i = 0; i < field.cells.length; i += 1) {
-          const localRow = [];
-          for (let j = 0; j < field.cells[0].length; j += 1) {
-            if (thereIsABadPiece(i, j)) localRow.push(-1);
-            else if (thereIsAGoodPiece(i, j)) localRow.push(1);
-            else localRow.push(0);
-          }
-          newField.push(localRow);
+      // turn board to number after player move
+      const newField = [];
+      for (let i = 0; i < field.cells.length; i += 1) {
+        const localRow = [];
+        for (let j = 0; j < field.cells[0].length; j += 1) {
+          if (thereIsABadPiece(i, j)) localRow.push(-1);
+          else if (thereIsAGoodPiece(i, j)) localRow.push(1);
+          else localRow.push(0);
         }
-        // is the turn of the player now
-        if (botPlaying) InitMinMax(newField);
+        newField.push(localRow);
       }
+      InitMinMax(newField);
     }
-    if (turns > 1 && botPlaying) {
+    if (turns >= 1 && botPlaying) {
       let forBot = [];
       if (trajectories.length === 1)
         if (trajectories[0].length > 0) {
@@ -291,7 +288,7 @@ function App() {
   };
 
   const selectGoodPiece = (e) => {
-    if (playerMoves.length > 1 || e.unique) {
+    if (playerMoves.length > 1 || e.unique || turns === 0) {
       let node = e.target;
       if (node.nodeName)
         while (node.nodeName.toLowerCase() !== "button") node = node.parentNode;
@@ -305,7 +302,7 @@ function App() {
         if (item.move[0] === nY && item.move[1] === nX) return item;
         return null;
       });
-      if (filter.length) {
+      if (filter.length || turns === 0) {
         // looking for possibles steps
         const newField = field;
         const victims = lookForMove({ y: nY, x: nX });
@@ -882,7 +879,7 @@ function App() {
     <ThemeProvider theme={dark}>
       <CssBaseline />
       <Box className="App">
-        <Container
+        {/* <Container
           alignItems="start "
           flexDirection="column"
           sx={{ position: "absolute", left: 0, margin: "20px 10px" }}
@@ -914,7 +911,7 @@ function App() {
           >
             Comenzar
           </Button>
-        </Container>
+        </Container> */}
         <header className="App-header">
           {pieces.map((item, i) => {
             return (
