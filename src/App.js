@@ -45,11 +45,11 @@ function App() {
   const [started, setStarted] = useState(false);
   const start = () => {
     setStarted(true);
+    setPieces({ type: "reset" });
     if (startBot) {
       // is the turn of the bot
       InitMinMax();
       const [, botAction, playerMoves] = MinMax(0, 0, 2, 1);
-      console.log(botAction, playerMoves);
       movePiece("bad", botAction[2], botAction[3], {
         y: botAction[0],
         x: botAction[1],
@@ -250,6 +250,7 @@ function App() {
         target: { id: `${playerMoves[0].move[0]}:${playerMoves[0].move[1]}` },
         unique: true,
       });
+    if (playerMoves.length === 0) setStarted(false);
   }, [playerMoves]);
 
   const fieldReducer = (fieldState, action) => {
