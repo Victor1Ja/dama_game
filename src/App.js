@@ -121,7 +121,7 @@ function App() {
           forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
       } else forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
       setTimeout(() => {
-        const [botAction, , playerMoves] = MiniMaxMove(forBot, 2, 1);
+        const [botAction, playerMoves] = MiniMaxMove(forBot, 2, 1);
         let killed;
         if (botAction.length === 4) {
           killed = pieceCrossed(
@@ -158,8 +158,8 @@ function App() {
         promoteQueen("bad");
         setBotPlaying(false);
         setTurns(turns + 1);
-        console.log(playerMoves.edges);
-        setPlayerMoves(playerMoves.edges);
+        console.log(playerMoves);
+        setPlayerMoves(playerMoves);
       }, 500);
     }
   }, [turns]);
