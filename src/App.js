@@ -18,7 +18,11 @@ import {
   FormLabel,
   FormControlLabel,
   Radio,
+  IconButton,
 } from "@mui/material";
+
+// @mui icons
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 // own components
 import Cell from "./components/Cell/Cell";
@@ -28,11 +32,13 @@ import BadQueen from "./components/Piece/BadQueen";
 import GoodPiece from "./components/Piece/GoodPiece";
 import GoodQueen from "./components/Piece/GoodQueen";
 import Dialog from "./components/Dialog/Dialog";
+import Loading from "./components/Loading/Loading";
 
 // theme
 import dark from "./assets/theme/dark";
+
+// utils
 import { isIn } from "./utils/utils";
-import Loading from "./components/Loading/Loading";
 
 function App() {
   const theme = useTheme();
@@ -950,13 +956,25 @@ function App() {
               />
             </RadioGroup>
           </FormControl>
-          <Button
-            sx={{ cursor: "pointer !important" }}
-            variant="contained"
-            onClick={start}
-          >
-            Comenzar
-          </Button>
+          <Container alignItems="center">
+            <Button
+              sx={{ cursor: "pointer !important" }}
+              variant="contained"
+              disabled={started}
+              onClick={start}
+            >
+              Comenzar
+            </Button>
+            <IconButton
+              color="primary"
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
+              <RestartAltIcon />
+            </IconButton>
+          </Container>
+
           <Loading visible={botThinking} />
         </Container>
         <header className="App-header">
