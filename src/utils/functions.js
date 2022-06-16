@@ -405,50 +405,51 @@ export const MinMax = (
 	alfa = 0,
 	beta = 0
 ) => {
-	// Create Edges
-	if (level < maxDeep) {
-		if (Nodes[currentNode].edges.length == 0) {
-			createEdges(currentNode, level, maxDeep, player);
-		} else {
-			//move through children
-			for (let newEdge of Nodes[currentNode].edges) {
-				MinMax(newEdge.nodeId, level + 1, maxDeep, !player);
-			}
-		}
-	} else {
-		Nodes[currentNode].value = calcValue(currentNode);
-		return;
-	}
-	if (Nodes[currentNode].edges.length == 0) {
-		Nodes[currentNode].value = calcValue(currentNode);
-		return;
-	}
-	let value = -9999;
-	let move = [],
-		nodeMove;
-	if (level % 2 == 1) value = 9999;
-	for (let newEdge of Nodes[currentNode].edges) {
-		let newNode = newEdge.nodeId;
-		if (newNode >= N) console.log("here");
-		//Max
-		if (level % 2 == 0) {
-			if (value < Nodes[newNode].value) {
-				value = Nodes[newNode].value;
-				move = newEdge.move;
-				nodeMove = newEdge.nodeId;
-			}
-		}
-		//Min
-		else if (value > Nodes[newNode].value) {
-			value = Nodes[newNode].value;
-			move = newEdge.move;
-			nodeMove = newEdge.nodeId;
-		}
-	}
-	Nodes[currentNode].value = value;
-	LastNode = nodeMove;
-	let allMoves = structuredClone(Nodes[LastNode].edges);
-	return [nodeMove, move, allMoves, Nodes[LastNode].edges];
+  // Create Edges
+  if (level < maxDeep) {
+    if (Nodes[currentNode].edges.length == 0) {
+      createEdges(currentNode, level, maxDeep, player);
+    } else {
+      //move through children
+      for (let newEdge of Nodes[currentNode].edges) {
+        MinMax(newEdge.nodeId, level + 1, maxDeep, !player);
+      }
+    }
+  } else {
+    Nodes[currentNode].value = calcValue(currentNode);
+    return;
+  }
+  if (Nodes[currentNode].edges.length == 0) {
+    Nodes[currentNode].value = calcValue(currentNode);
+    return;
+  }
+  let value = -9999;
+  let move = [],
+    nodeMove;
+  if (level % 2 == 1) value = 9999;
+  for (let newEdge of Nodes[currentNode].edges) {
+    let newNode = newEdge.nodeId;
+    if (newNode >= N) console.log("here");
+    //Max
+    if (level % 2 == 0) {
+      if (value < Nodes[newNode].value) {
+        value = Nodes[newNode].value;
+        move = newEdge.move;
+        nodeMove = newEdge.nodeId;
+      }
+    }
+    //Min
+    else if (value > Nodes[newNode].value) {
+      value = Nodes[newNode].value;
+      move = newEdge.move;
+      nodeMove = newEdge.nodeId;
+    }
+  }
+  Nodes[currentNode].value = value;
+  LastNode = nodeMove;
+  let allMoves = structuredClone(Nodes[LastNode].edges);
+  return [nodeMove, move, allMoves];
+
 };
 
 /**
@@ -483,11 +484,12 @@ export const MiniMaxMove = (userMoves, maxDeep = 4, player = 0) => {
 		console.log("***************************");
 		throw error;
 	}
+  
+  let allMoves;
+  [LastNode, botMoves, allMoves] = MinMax(LastNode, 0, maxDeep, player);
+  console.log(Nodes[LastNode].board);
+  return [botMoves, allMoves];
 
-	let allMoves;
-	[LastNode, botMoves, allMoves] = MinMax(LastNode, 0, maxDeep, player);
-	console.log(Nodes[LastNode].board);
-	return [botMoves, allMoves, Nodes[LastNode]];
 };
 
 /**
