@@ -448,7 +448,7 @@ export const MinMax = (
   Nodes[currentNode].value = value;
   LastNode = nodeMove;
   let allMoves = structuredClone(Nodes[LastNode].edges);
-  return [nodeMove, move, allMoves, Nodes[LastNode].edges];
+  return [nodeMove, move, allMoves];
 };
 
 /**
@@ -486,7 +486,7 @@ export const MiniMaxMove = (userMoves, maxDeep = 4, player = 0) => {
 
   let allMoves;
   [LastNode, botMoves, allMoves] = MinMax(LastNode, 0, maxDeep, player);
-  return [botMoves, allMoves, Nodes[LastNode]];
+  return [botMoves, allMoves];
 };
 
 /**

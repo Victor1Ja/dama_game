@@ -48,7 +48,7 @@ function App() {
     if (startBot) {
       // is the turn of the bot
       InitMinMax();
-      const [, botAction, playerMoves] = MinMax(0, 0, 2, 1);
+      const [botAction, , playerMoves] = MinMax(0, 0, 2, 1);
       movePiece("bad", botAction[2], botAction[3], {
         y: botAction[0],
         x: botAction[1],
@@ -120,7 +120,7 @@ function App() {
           forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
       } else forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
       setTimeout(() => {
-        const [botAction, , playerMoves] = MiniMaxMove(forBot, 2, 1);
+        const [botAction, playerMoves] = MiniMaxMove(forBot, 2, 1);
         let killed;
         if (botAction.length === 4) {
           killed = pieceCrossed(
