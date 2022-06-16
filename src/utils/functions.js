@@ -486,6 +486,7 @@ export const MiniMaxMove = (userMoves, maxDeep = 4, player = 0) => {
 
 	let allMoves;
 	[LastNode, botMoves, allMoves] = MinMax(LastNode, 0, maxDeep, player);
+	console.log(Nodes[LastNode].board);
 	return [botMoves, allMoves, Nodes[LastNode]];
 };
 
