@@ -420,9 +420,9 @@ export const MinMax = (
 		Nodes[currentNode].value = calcValue(currentNode);
 		return;
 	}
-	if (Nodes[currentNode].edges.length == 0) {
+	if (!Nodes[currentNode].edges || Nodes[currentNode].edges.length == 0) {
 		Nodes[currentNode].value = calcValue(currentNode);
-		return;
+		return [-1,[],[]];
 	}
 	let value = -9999;
 	let move = [],
@@ -448,6 +448,8 @@ export const MinMax = (
 	}
 	Nodes[currentNode].value = value;
 	LastNode = nodeMove;
+	if(!Nodes[LastNode] || !Nodes[LastNode].edges)
+		return [-2,[],[]]
 	let allMoves = structuredClone(Nodes[LastNode].edges);
 	return [nodeMove, move, allMoves];
 
@@ -488,7 +490,16 @@ export const MiniMaxMove = (userMoves, maxDeep = 4, player = 0) => {
 
 	let allMoves;
 	[LastNode, botMoves, allMoves] = MinMax(LastNode, 0, maxDeep, player);
-	console.log(Nodes[LastNode].board);
+	try {
+		assert(LastNode != -2 , "WTF ERROR");
+	} catch (error) {
+		console.log("***************************");
+		console.log("*OK!?                     *");
+		console.log("***************************");
+		return [[],[]]
+	}
+	if (LastNode >= 0) console.log(Nodes[LastNode].board);
+	
 	return [botMoves, allMoves];
 
 };

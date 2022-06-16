@@ -12,9 +12,12 @@ import {
   useTheme,
   CssBaseline,
   Box,
-  TextField,
   Button,
-  Checkbox,
+  FormControl,
+  RadioGroup,
+  FormLabel,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
 
 // own components
@@ -24,6 +27,7 @@ import BadPiece from "./components/Piece/BadPiece";
 import BadQueen from "./components/Piece/BadQueen";
 import GoodPiece from "./components/Piece/GoodPiece";
 import GoodQueen from "./components/Piece/GoodQueen";
+import Dialog from "./components/Dialog/Dialog";
 
 // theme
 import dark from "./assets/theme/dark";
@@ -34,6 +38,26 @@ function App() {
 
   const rows = [0, 1, 2, 3, 4, 5, 6, 7];
 
+  const [dialog, setDialog] = useState(false);
+  const [win, setWin] = useState(false);
+  const [difficulty, setDifficulty] = useState(2);
+  const [radioState, setRadioState] = useState("easy");
+
+  const handleChange = (event) => {
+    switch (event.target.value) {
+      case "easy":
+        setDifficulty(2);
+        break;
+      case "medium":
+        setDifficulty(4);
+        break;
+      default:
+        setDifficulty(6);
+        break;
+    }
+    setRadioState(event.target.value);
+  };
+
   const [turns, setTurns] = useState(0);
   const [playerMove, setPlayerMove] = useState({});
   const [movedPiece, setMovedPiece] = useState({});
@@ -41,7 +65,7 @@ function App() {
   const [playerMoves, setPlayerMoves] = useState([]);
   const [trajectories, setTrajectories] = useState([]);
 
-  const [startBot, setStartBot] = useState(true);
+  const [startBot] = useState(true);
   const [started, setStarted] = useState(false);
   const start = () => {
     setStarted(true);
@@ -49,7 +73,7 @@ function App() {
     if (startBot) {
       // is the turn of the bot
       InitMinMax();
-      const [, botAction, playerMoves] = MinMax(0, 0, 2, 1);
+      const [, botAction, playerMoves] = MinMax(0, 0, difficulty, 1);
       movePiece("bad", botAction[2], botAction[3], {
         y: botAction[0],
         x: botAction[1],
@@ -118,45 +142,50 @@ function App() {
           forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
       } else forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
       setTimeout(() => {
-        const [botAction, playerMoves] = MiniMaxMove(forBot, 2, 1);
-        let killed;
-        if (botAction.length === 4) {
-          killed = pieceCrossed(
-            "good",
-            { y: botAction[0], x: botAction[1] },
-            { y: botAction[2], x: botAction[3] }
-          );
-          if (killed.length)
-            killed.forEach((item) => {
-              killPiece(item.y, item.x);
-            });
+        console.log(forBot);
+        const [botAction, playerMoves] = MiniMaxMove(forBot, difficulty, 1);
+        if (botAction.length === 0) {
+          setDialog(true);
+          setWin(true);
         } else {
-          let preview = { y: botAction[0], x: botAction[1] };
-          for (let i = 2; i < botAction.length; i += 2) {
-            const item = { y: botAction[i], x: botAction[i + 1] };
-            if (i > 2) preview = { y: botAction[i - 2], x: botAction[i - 1] };
-            killed = pieceCrossed("good", preview, item, i - 2 + 1);
-            if (killed.length) {
+          let killed;
+          if (botAction.length === 4) {
+            killed = pieceCrossed(
+              "good",
+              { y: botAction[0], x: botAction[1] },
+              { y: botAction[2], x: botAction[3] }
+            );
+            if (killed.length)
               killed.forEach((item) => {
                 killPiece(item.y, item.x);
               });
+          } else {
+            let preview = { y: botAction[0], x: botAction[1] };
+            for (let i = 2; i < botAction.length; i += 2) {
+              const item = { y: botAction[i], x: botAction[i + 1] };
+              if (i > 2) preview = { y: botAction[i - 2], x: botAction[i - 1] };
+              killed = pieceCrossed("good", preview, item, i - 2 + 1);
+              if (killed.length) {
+                killed.forEach((item) => {
+                  killPiece(item.y, item.x);
+                });
+              }
             }
           }
+          movePiece(
+            "bad",
+            botAction[botAction.length - 2],
+            botAction[botAction.length - 1],
+            {
+              y: botAction[0],
+              x: botAction[1],
+            }
+          );
+          promoteQueen("bad");
+          setBotPlaying(false);
+          setTurns(turns + 1);
+          setPlayerMoves(playerMoves);
         }
-        movePiece(
-          "bad",
-          botAction[botAction.length - 2],
-          botAction[botAction.length - 1],
-          {
-            y: botAction[0],
-            x: botAction[1],
-          }
-        );
-        promoteQueen("bad");
-        setBotPlaying(false);
-        setTurns(turns + 1);
-        console.log(playerMoves);
-        setPlayerMoves(playerMoves);
       }, 500);
     }
   }, [turns]);
@@ -232,13 +261,13 @@ function App() {
     [1, 0, 1, 0, 1, 0, 1, 0],
     [0, 1, 0, 1, 0, 1, 0, 1],
     /*[0, 0, 2, 0, 0, 0, -1, 0],
-    [0, -1, 0, 0, 0, -1, 0, -1],
-    [-1, 0, -1, 0, 0, 0, -1, 0],
-    [0, -2, 0, 0, 0, 1, 0, 1],
-    [-1, 0, 0, 0, 1, 0, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 1],
+    [0, 0, 0, 0, 0, -1, 0, -1],
+    [-1, 0, 0, 0, 0, 0, -1, 0],
+    [0, -2, 0, 0, 0, 0, 0, 0],
+    [-1, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0,  0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 1],*/
+    [0, 0, 0, 0, 0, 0, 0, 0],*/
   ]);
 
   useEffect(() => {
@@ -247,7 +276,13 @@ function App() {
         target: { id: `${playerMoves[0].move[0]}:${playerMoves[0].move[1]}` },
         unique: true,
       });
-    if (playerMoves.length === 0) setStarted(false);
+    if (playerMoves.length === 0) {
+      setStarted(false);
+      if (turns > 1) {
+        setDialog(true);
+        setWin(false);
+      }
+    }
   }, [playerMoves]);
 
   const fieldReducer = (fieldState, action) => {
@@ -877,6 +912,7 @@ function App() {
 
   return (
     <ThemeProvider theme={dark}>
+      <Dialog visible={dialog} onClose={() => setDialog(false)} which={win} />
       <CssBaseline />
       <Box className="App">
         <Container
@@ -884,26 +920,34 @@ function App() {
           flexDirection="column"
           sx={{ position: "absolute", left: 0, margin: "20px 10px" }}
         >
-          {/*<TextField
-            label="Máxima profundida"
-            value={maxDeep}
-            onChange={(e) => {
-              if (Number(e.target.value) >= 2 && Number(e.target.value) <= 20)
-                if (Number(e.target.value) > maxDeep)
-                  setMaxDeep(Number(e.target.value) + 1);
-                else setMaxDeep(Number(e.target.value) - 1);
-            }}
-            type="number"
-            max={10}
-            min={1}
-          />
-          <Container alignItems="center">
-            <Checkbox
-              checked={startBot}
-              onChange={(e) => setStartBot(e.target.checked)}
-            />
-            <label>Bot primero </label>
-          </Container> */}
+          <FormControl>
+            <FormLabel id="demo-radio-buttons-group-label">
+              Nivel de dificultad
+            </FormLabel>
+            <RadioGroup
+              aria-labelledby="demo-radio-buttons-group-label"
+              defaultValue="easy"
+              name="radio-buttons-group"
+              value={radioState}
+              onChange={handleChange}
+            >
+              <FormControlLabel
+                value="easy"
+                control={<Radio />}
+                label="Fácil"
+              />
+              <FormControlLabel
+                value="medium"
+                control={<Radio />}
+                label="Medio"
+              />
+              <FormControlLabel
+                value="hard"
+                control={<Radio />}
+                label="Difícil"
+              />
+            </RadioGroup>
+          </FormControl>
           <Button
             sx={{ cursor: "pointer !important" }}
             variant="contained"
