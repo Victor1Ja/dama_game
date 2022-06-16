@@ -38,6 +38,7 @@ function App() {
   const [playerMove, setPlayerMove] = useState({});
   const [movedPiece, setMovedPiece] = useState({});
   const [botPlaying, setBotPlaying] = useState(false);
+  const [playerMoves, setPlayerMoves] = useState([]);
   const [trajectories, setTrajectories] = useState([]);
 
   const [startBot, setStartBot] = useState(true);
@@ -47,11 +48,12 @@ function App() {
     if (startBot) {
       // is the turn of the bot
       InitMinMax();
-      const [, botAction] = MinMax(0, 0, 2, 1);
+      const [, botAction, playerMoves] = MinMax(0, 0, 2, 1);
       movePiece("bad", botAction[2], botAction[3], {
         y: botAction[0],
         x: botAction[1],
       });
+      setPlayerMoves(playerMoves);
       setBotPlaying(false);
       setTurns(turns + 1);
     }
@@ -88,24 +90,37 @@ function App() {
         } else
           forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
       else if (trajectories.length > 2) {
-        forBot.push(movedPiece.y);
-        forBot.push(movedPiece.x);
-        let found = false;
-        let i = 0;
-        while (!found && i < trajectories.length) {
-          if (
-            trajectories[i].y === playerMove.y &&
-            trajectories[i].x === playerMove.x
-          )
-            found = true;
-          forBot.push(trajectories[i].y);
-          forBot.push(trajectories[i].x);
-          i += 1;
-        }
+        const killed = pieceCrossed(
+          "bad",
+          {
+            y: movedPiece.y,
+            x: movedPiece.x,
+          },
+          {
+            y: playerMove.y,
+            x: playerMove.x,
+          }
+        );
+        if (killed.length) {
+          forBot.push(movedPiece.y);
+          forBot.push(movedPiece.x);
+          let found = false;
+          let i = 0;
+          while (!found && i < trajectories.length) {
+            if (
+              trajectories[i].y === playerMove.y &&
+              trajectories[i].x === playerMove.x
+            )
+              found = true;
+            forBot.push(trajectories[i].y);
+            forBot.push(trajectories[i].x);
+            i += 1;
+          }
+        } else
+          forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
       } else forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
       setTimeout(() => {
         const [botAction, , playerMoves] = MiniMaxMove(forBot, 2, 1);
-        console.log(playerMoves.edges);
         let killed;
         if (botAction.length === 4) {
           killed = pieceCrossed(
@@ -142,6 +157,8 @@ function App() {
         promoteQueen("bad");
         setBotPlaying(false);
         setTurns(turns + 1);
+        console.log(playerMoves.edges);
+        setPlayerMoves(playerMoves.edges);
       }, 500);
     }
   }, [turns]);
@@ -226,6 +243,14 @@ function App() {
     [0, 0, 0, 0, 0, 0, 0, 1],*/
   ]);
 
+  useEffect(() => {
+    if (playerMoves.length === 1)
+      selectGoodPiece({
+        target: { id: `${playerMoves[0].move[0]}:${playerMoves[0].move[1]}` },
+        unique: true,
+      });
+  }, [playerMoves]);
+
   const fieldReducer = (fieldState, action) => {
     const { type, array } = action;
     switch (type) {
@@ -264,26 +289,41 @@ function App() {
   };
 
   const selectGoodPiece = (e) => {
-    let node = e.target;
-    while (node.nodeName.toLowerCase() !== "button") node = node.parentNode;
-    const { id } = node;
-    const [y, x] = id.split(":");
-    const nY = Number(y);
-    const nX = Number(x);
-    cleanField();
-
-    // looking for possibles steps
-    const newField = field;
-    const victims = lookForMove({ y: nY, x: nX });
-    victims.forEach((item) => {
-      if (item.length) {
-        const last = item[item.length - 1];
-        newField.cells[last.y][last.x] = { target: `${last.y}:${last.x}` };
-      } else newField.cells[item.y][item.x] = { target: `${item.y}:${item.x}` };
-    });
-    setTrajectories(victims);
-    setField({ type: "set", array: newField });
-    setSelectedPiece({ y: nY, x: nX });
+    if (playerMoves.length > 1 || e.unique) {
+      let node = e.target;
+      if (node.nodeName)
+        while (node.nodeName.toLowerCase() !== "button") node = node.parentNode;
+      const { id } = node;
+      const [y, x] = id.split(":");
+      const nY = Number(y);
+      const nX = Number(x);
+      cleanField();
+      // checking for valid move
+      const filter = playerMoves.filter((item) => {
+        if (item.move[0] === nY && item.move[1] === nX) return item;
+        return null;
+      });
+      if (filter.length) {
+        // looking for possibles steps
+        const newField = field;
+        const victims = lookForMove({ y: nY, x: nX });
+        victims.forEach((item) => {
+          if (item.length) {
+            const last = item[item.length - 1];
+            newField.cells[last.y][last.x] = { target: `${last.y}:${last.x}` };
+          } else
+            newField.cells[item.y][item.x] = { target: `${item.y}:${item.x}` };
+        });
+        setTrajectories(victims);
+        setField({ type: "set", array: newField });
+        setSelectedPiece({ y: nY, x: nX });
+      } else {
+        selectGoodPiece({
+          target: { id: `${playerMoves[0].move[0]}:${playerMoves[0].move[1]}` },
+          unique: true,
+        });
+      }
+    }
   };
 
   const selectBadPiece = (e) => {
@@ -749,6 +789,7 @@ function App() {
   };
 
   const possibleKillClick = (cell) => {
+    setSelectedPiece({});
     if (!botPlaying) {
       const [cY, cX] = cell.split(":");
       // y,x of target as number
@@ -798,6 +839,7 @@ function App() {
   };
 
   const possibleStepClick = (e) => {
+    setSelectedPiece({});
     if (!botPlaying) {
       const { id } = e.target;
       const [y, x] = id.split(":");
@@ -905,6 +947,20 @@ function App() {
                         selectGoodPiece={selectGoodPiece}
                       />
                     )}
+                    {field.cells &&
+                      i === selectedPiece.y &&
+                      j === selectedPiece.x && (
+                        <Box
+                          sx={{
+                            background: theme.palette.success.main,
+                            width: "60px",
+                            height: "60px",
+                            zIndex: 1,
+                            position: "absolute",
+                            cursor: "pointer",
+                          }}
+                        />
+                      )}
                     {field.cells && field.cells[i][j] === "0" && (
                       <Box
                         sx={{
