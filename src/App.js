@@ -32,12 +32,14 @@ import Dialog from "./components/Dialog/Dialog";
 // theme
 import dark from "./assets/theme/dark";
 import { isIn } from "./utils/utils";
+import Loading from "./components/Loading/Loading";
 
 function App() {
   const theme = useTheme();
 
   const rows = [0, 1, 2, 3, 4, 5, 6, 7];
 
+  const [botThinking, setBotThinking] = useState(false);
   const [dialog, setDialog] = useState(false);
   const [win, setWin] = useState(false);
   const [difficulty, setDifficulty] = useState(2);
@@ -61,7 +63,7 @@ function App() {
   const [turns, setTurns] = useState(0);
   const [playerMove, setPlayerMove] = useState({});
   const [movedPiece, setMovedPiece] = useState({});
-  const [botPlaying, setBotPlaying] = useState(false);
+  const [botPlaying, setBotPlaying] = useState(true);
   const [playerMoves, setPlayerMoves] = useState([]);
   const [trajectories, setTrajectories] = useState([]);
 
@@ -80,6 +82,7 @@ function App() {
       });
       setPlayerMoves(playerMoves);
       setBotPlaying(false);
+      setBotThinking(false);
       setTurns(turns + 1);
     } else setBotPlaying(false);
   };
@@ -142,7 +145,6 @@ function App() {
           forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
       } else forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
       setTimeout(() => {
-        console.log(forBot);
         const [botAction, playerMoves, board] = MiniMaxMove(
           forBot,
           difficulty,
@@ -192,6 +194,7 @@ function App() {
           setPlayerMoves(playerMoves);
           if (turns > 1) if (board) setPieces({ type: "set", newArray: board });
         }
+        setBotThinking(false);
       }, 500);
     }
   }, [turns]);
@@ -350,7 +353,6 @@ function App() {
         // looking for possibles steps
         const newField = field;
         const victims = lookForMove({ y: nY, x: nX });
-        console.log(victims);
         victims.forEach((item) => {
           if (item.length) {
             const last = item[item.length - 1];
@@ -686,7 +688,6 @@ function App() {
         if (item.chain) return item;
         return null;
       });
-      console.log(chains);
       // looking for best chain
       let auxiliary = [];
       let bestChain = [];
@@ -714,7 +715,6 @@ function App() {
       });
       if (currentChain.length && bestChain.length === currentChain.length)
         auxiliary.push(currentChain);
-      console.log(auxiliary, bestChain, currentChain);
       if (auxiliary.length > 0) {
         if (bestChain.length === 0 && currentChain.length) {
           const temp = [];
@@ -823,6 +823,7 @@ function App() {
   };
 
   const possibleKillClick = (cell) => {
+    setBotThinking(true);
     setSelectedPiece({});
     if (!botPlaying) {
       const [cY, cX] = cell.split(":");
@@ -873,6 +874,7 @@ function App() {
   };
 
   const possibleStepClick = (e) => {
+    setBotThinking(true);
     setSelectedPiece({});
     if (!botPlaying) {
       const { id } = e.target;
@@ -955,6 +957,7 @@ function App() {
           >
             Comenzar
           </Button>
+          <Loading visible={botThinking} />
         </Container>
         <header className="App-header">
           {pieces.map((item, i) => {
