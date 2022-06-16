@@ -143,7 +143,12 @@ function App() {
       } else forBot = [movedPiece.y, movedPiece.x, playerMove.y, playerMove.x];
       setTimeout(() => {
         console.log(forBot);
-        const [botAction, playerMoves] = MiniMaxMove(forBot, difficulty, 1);
+        const [botAction, playerMoves, board] = MiniMaxMove(
+          forBot,
+          difficulty,
+          1
+        );
+
         if (botAction.length === 0) {
           setDialog(true);
           setWin(true);
@@ -185,6 +190,7 @@ function App() {
           setBotPlaying(false);
           setTurns(turns + 1);
           setPlayerMoves(playerMoves);
+          if (turns > 1) if (board) setPieces({ type: "set", newArray: board });
         }
       }, 500);
     }
@@ -194,6 +200,9 @@ function App() {
 
   const piecesReducer = (pieceState, action) => {
     switch (action.type) {
+      case "set": {
+        return action.newArray;
+      }
       case "promotion": {
         const newPieceState = pieceState;
         const { team } = action;
@@ -341,6 +350,7 @@ function App() {
         // looking for possibles steps
         const newField = field;
         const victims = lookForMove({ y: nY, x: nX });
+        console.log(victims);
         victims.forEach((item) => {
           if (item.length) {
             const last = item[item.length - 1];
@@ -432,7 +442,7 @@ function App() {
                     chain: chain + 1,
                   });
                   pieces[localY - 1][localX + 1] -= 2;
-                  console.log(pieces);
+
                   lookForMove(
                     { y: localY, x: localX },
                     chain + 1,
@@ -481,7 +491,7 @@ function App() {
                     chain: chain + 1,
                   });
                   pieces[localY - 1][localX - 1] -= 2;
-                  console.log(pieces);
+
                   lookForMove(
                     { y: localY, x: localX },
                     chain + 1,
@@ -524,7 +534,7 @@ function App() {
                     chain: chain + 1,
                   });
                   pieces[localY + 1][localX + 1] -= 2;
-                  console.log(pieces);
+
                   lookForMove(
                     { y: localY, x: localX },
                     chain + 1,
@@ -567,7 +577,7 @@ function App() {
                     chain: chain + 1,
                   });
                   pieces[localY + 1][localX - 1] -= 2;
-                  console.log(pieces);
+
                   lookForMove(
                     { y: localY, x: localX },
                     chain + 1,
@@ -676,6 +686,7 @@ function App() {
         if (item.chain) return item;
         return null;
       });
+      console.log(chains);
       // looking for best chain
       let auxiliary = [];
       let bestChain = [];
@@ -689,6 +700,7 @@ function App() {
           if (currentChain.length === bestChain.length)
             auxiliary.push(currentChain);
           currentChain = [];
+          currentChain.push(item);
         } else if (
           currentChain.length &&
           item.chain === currentChain[currentChain.length - 1].chain
@@ -700,21 +712,9 @@ function App() {
           auxiliary.push(temp);
         } else currentChain.push(item);
       });
-      if (chains.length === 0)
-        chains.forEach((item) => {
-          if (item.kill && currentChain.length) {
-            if (currentChain.length > bestChain.length) {
-              auxiliary = [];
-              bestChain = currentChain;
-            }
-            if (currentChain.length === bestChain.length)
-              auxiliary.push(currentChain);
-            currentChain = [];
-          }
-          currentChain.push(item);
-        });
       if (currentChain.length && bestChain.length === currentChain.length)
         auxiliary.push(currentChain);
+      console.log(auxiliary, bestChain, currentChain);
       if (auxiliary.length > 0) {
         if (bestChain.length === 0 && currentChain.length) {
           const temp = [];

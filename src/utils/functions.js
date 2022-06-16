@@ -497,8 +497,11 @@ export const MiniMaxMove = (userMoves, maxDeep = 4, player = 0) => {
     console.log("***************************");
     return [[], []];
   }
-  if (LastNode >= 0) console.log(Nodes[LastNode].board);
+  if (LastNode >= 0) {
+    console.log(Nodes[LastNode].board);
 
+    return [botMoves, allMoves, Nodes[LastNode].board];
+  }
   return [botMoves, allMoves];
 };
 
