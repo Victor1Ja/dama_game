@@ -2,6 +2,8 @@
 
  This project is dama game , where the computer plays using a MinMAx algorithm.
 
+![image](https://user-images.githubusercontent.com/48563357/219238376-3855e94e-83eb-4c74-9194-c61781d3e53a.png)
+
 ## To start
 
 In the project directory, you can run:
